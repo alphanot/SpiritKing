@@ -1,10 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace SpiritKing.Components.Posessables
 {
@@ -12,7 +6,7 @@ namespace SpiritKing.Components.Posessables
     {
         public override Attack NormalAttack { get; set; }
 
-        public Goblin(Game game, bool isPosesed = false) : base(game, new Stats()
+        public Goblin(Game game, Vector2 position, bool isPosesed = false) : base(game, new Stats()
         {
             WalkSpeed = 175,
             RunSpeed = 400,
@@ -30,9 +24,10 @@ namespace SpiritKing.Components.Posessables
             Health = 100,
             Stamina = 170,
             Color = Color.DarkOliveGreen,
-
-        }, isPosesed) {
-            NormalAttack = new Attack(new CollisionShape(Position.X, Position.Y, 100, 10), 0.2f, 0.2f, 10, 30, 10);
+        }, isPosesed)
+        {
+            Position = position;
+            NormalAttack = new Attack(new CollisionShape(Position.X, Position.Y, 100, 10), 0.2f, 0.2f, 10, 30, 200);
         }
     }
 }

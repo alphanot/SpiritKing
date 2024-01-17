@@ -8,6 +8,7 @@ namespace SpiritKing.Structs
     {
         public Point2 Position;
         public Point2 Target;
+
         public Line(Point2 Position, Point2 Target)
         {
             this.Position = Position;
@@ -19,9 +20,10 @@ namespace SpiritKing.Structs
             double angleInRadians = angleInDegrees * (Math.PI / 180);
             double cosTheta = Math.Cos(angleInRadians);
             double sinTheta = Math.Sin(angleInRadians);
-            Target = new Point2 {
-                X = (int) (cosTheta * (Target.X - Position.X) - sinTheta * (Target.Y - Position.Y) + Position.X),
-                Y = (int) (sinTheta * (Target.X - Position.X) + cosTheta * (Target.Y - Position.Y) + Position.Y)
+            Target = new Point2
+            {
+                X = (int)(cosTheta * (Target.X - Position.X) - sinTheta * (Target.Y - Position.Y) + Position.X),
+                Y = (int)(sinTheta * (Target.X - Position.X) + cosTheta * (Target.Y - Position.Y) + Position.Y)
             };
         }
 
@@ -66,6 +68,5 @@ namespace SpiritKing.Structs
         {
             return Position == other.Position && Target == other.Target;
         }
-
     }
 }

@@ -1,19 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended.BitmapFonts;
-using MonoGame.Extended.Sprites;
 using SpiritKing.Components.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpiritKing.Components
 {
     public class MenuButton : INode
     {
         public string Text { get; set; }
+
         public Point Position
         {
             get
@@ -27,6 +22,7 @@ namespace SpiritKing.Components
                     outlineRect.Position = new Vector2(_pos.X, _pos.Y);
             }
         }
+
         private Point _pos;
 
         public Point Size { get; set; }
@@ -36,17 +32,17 @@ namespace SpiritKing.Components
         private Texture2D texture;
 
         private OutlineRectF outlineRect;
-        
+
         private SpriteFont _font;
 
         private Vector2 _STRINGSIZE = Vector2.Zero;
 
-        public virtual Action Action {  get; set; }
+        public virtual Action Action { get; set; }
         public int Padding { get; set; }
 
         public int DrawOrder => 1;
 
-        public MenuButton(Game game, Point position, Point size, string text, int padding = 25) 
+        public MenuButton(Game game, Point position, Point size, string text, int padding = 25)
         {
             _font = game.Content.Load<SpriteFont>("Fonts/LabelText");
             texture = new Texture2D(game.GraphicsDevice, 1, 1);
@@ -71,7 +67,7 @@ namespace SpiritKing.Components
         }
 
         public void Update(GameTime gameTime)
-        {}
+        { }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {

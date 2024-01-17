@@ -1,10 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace SpiritKing.Components.Posessables
 {
@@ -12,7 +6,7 @@ namespace SpiritKing.Components.Posessables
     {
         public override Attack NormalAttack { get; set; }
 
-        public Hound(Game game, bool isPosesed = false) : base(game, new Stats()
+        public Hound(Game game, Vector2 position, bool isPosesed = false) : base(game, new Stats()
         {
             WalkSpeed = 205,
             RunSpeed = 500,
@@ -30,8 +24,9 @@ namespace SpiritKing.Components.Posessables
             Health = 100,
             Stamina = 210,
             Color = Color.LightSlateGray,
-
-        }, isPosesed) {
+        }, isPosesed)
+        {
+            Position = position;
             NormalAttack = new Attack(new CollisionShape(Position.X, Position.Y, 10, 44), 0.2f, 0.2f, 10, 30, 10);
         }
     }

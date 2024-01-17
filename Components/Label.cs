@@ -1,11 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SpiritKing.Components.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpiritKing.Components
 {
@@ -36,6 +31,7 @@ namespace SpiritKing.Components
             Color = color;
             STRING_SIZE = _font.MeasureString(Text);
         }
+
         public Label(Game game, string text, Vector2 position) : this(game, text, position, Color.White)
         { }
 

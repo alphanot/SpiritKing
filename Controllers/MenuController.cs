@@ -1,26 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using SpiritKing.Components;
 using SpiritKing.Components.Interfaces;
-using SpiritKing.Components.States;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpiritKing.Controllers
 {
     public class MenuController : INode
     {
-        
         public MenuButton[] Buttons;
         private int currentBtnIndex;
 
         public int DrawOrder => 1;
 
-        public MenuController(Game game, MenuButton[] buttons) 
+        public MenuController(Game game, MenuButton[] buttons)
         {
             Buttons = buttons;
             currentBtnIndex = 0;

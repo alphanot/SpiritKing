@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
@@ -13,11 +12,8 @@ using SpiritKing.Components.States;
 using SpiritKing.Controllers;
 using SpiritKing.Structs;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace SpiritKing.Components.Posessables
 {
@@ -31,6 +27,7 @@ namespace SpiritKing.Components.Posessables
         public virtual Vector2 Velocity { get; set; }
         public virtual CollisionShape Collider { get; set; }
         public virtual CollisionShape ColliderCheck { get; set; }
+        public virtual CollisionShape EnemyAIFieldOfView { get; set; }
 
         public virtual CollisionShape PosessableCollider { get; set; }
         public virtual List<CollisionShape> Colliders { get; set; }
@@ -38,12 +35,19 @@ namespace SpiritKing.Components.Posessables
         public Texture2D Sprite { get; set; }
 
         public static event Action<Posessable> PosessableDied;
+
         public static event Action<IPosessable> AttemptPossess;
+
         public static event Action<IPosessable> PosessableSwitched;
+
         public static event Action<IPosessable> GetPosessableCollidable;
+
         public static event Action<Attack> PlayerAttacked;
+
         public static event Action<float> UpdateHealthBar;
+
         public static event Action<float, bool> UpdateStaminaBar;
+
         public static event Action<bool> UpdatePosessCanActivate;
 
         public const float POSESS_TIMER_WAIT_TIME = 3f;
@@ -54,15 +58,12 @@ namespace SpiritKing.Components.Posessables
 
         public virtual Attack NormalAttack { get; set; }
 
-        private List<IPosessable> _targetedPosessables;
-
         private Vector2 NextPosition { get; set; }
 
         private ParticleController _particleController { get; set; }
         private CollisionShape _wallCollider { get; set; }
         private CollisionShape _groundCollider { get; set; }
         private CollisionShape _ceilingCollider { get; set; }
-
 
         private OutlineRectF _outlineRect;
 
@@ -90,8 +91,6 @@ namespace SpiritKing.Components.Posessables
             Sprite.SetData(new[] { Color.White });
             _outlineRect = new OutlineRectF(Sprite, Position.X, Position.Y, Stats.Width, Stats.Height, 4);
 
-            _targetedPosessables = new List<IPosessable>();
-
             PlayerState = new PlayerState();
             Position = new Vector2(100, 100);
             Velocity = new Vector2(0, 0);
@@ -100,8 +99,8 @@ namespace SpiritKing.Components.Posessables
             ColliderCheck = new CollisionShape(Position.X - 100, Position.Y - 100, Stats.Width + 200, Stats.Height + 200);
             Colliders = new List<CollisionShape>();
             PosessableCollider = new CollisionShape(Position.X - 100, Position.Y - 100, Stats.Width + 200, Stats.Height + 200);
+            EnemyAIFieldOfView = new CollisionShape(Position.X - 400, Position.Y - 400, Stats.Width + 800, Stats.Height + 800);
             Platform.GetCollidable += Signal_GetCollidable;
-            GetPosessableCollidable += Signal_GetPosessableCollidable;
             PlayerAttacked += Signal_PlayerAttacked;
             _canGroundRay = new RectangleF(new Vector2(Position.X - 10, Position.Y + (Stats.Height * 0.8F)), new Vector2(Stats.Width + 20, 1));
             _canShiftLeftRay = new RectangleF(new Vector2(Position.X + (Stats.Width * 0.8F), Position.Y - 25), new Vector2(1, Stats.Height));
@@ -145,7 +144,6 @@ namespace SpiritKing.Components.Posessables
                 });
         }
 
-
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(Sprite, Position, Collider.Shape.ToRectangle(), Stats.Color);
@@ -175,7 +173,6 @@ namespace SpiritKing.Components.Posessables
             _particleController.Dispose();
             _particleController = null;
             Platform.GetCollidable -= Signal_GetCollidable;
-            GetPosessableCollidable -= Signal_GetPosessableCollidable;
             PlayerAttacked -= Signal_PlayerAttacked;
 
             IsPosessed = false;
@@ -186,8 +183,6 @@ namespace SpiritKing.Components.Posessables
             _outlineRect.Dispose();
             _outlineRect = null;
 
-            _targetedPosessables = null;
-
             PlayerState = null;
             Position = Vector2.Zero;
             Position = Vector2.Zero;
@@ -195,12 +190,14 @@ namespace SpiritKing.Components.Posessables
             Collider.Dispose();
             Collider = null;
 
+            EnemyAIFieldOfView.Dispose();
+            EnemyAIFieldOfView = null;
+
             ColliderCheck = null;
             Colliders.Clear();
             Colliders = null;
             PosessableCollider.Dispose();
             PosessableCollider = null;
-            
 
             _canGroundRay = RectangleF.Empty;
             _canShiftLeftRay = RectangleF.Empty;
@@ -211,8 +208,6 @@ namespace SpiritKing.Components.Posessables
 
             _enemyHealthBar.Dispose();
             _enemyHealthBar = null;
-
-            Debug.Print("Posessable.Dispose()");
         }
 
         public void Update(GameTime gameTime)
@@ -243,6 +238,16 @@ namespace SpiritKing.Components.Posessables
             MoveChildren(Position);
 
             HandleParticles(gameTime);
+        }
+
+        public bool PosessIsReady()
+        {
+            return _posessCooldownTimer.ElapsedGameTime.TotalSeconds > POSESS_TIMER_WAIT_TIME;
+        }
+
+        public bool CanBePosessed()
+        {
+            return Stats.Health < (Stats.MaxHealth / 2);
         }
 
         private void SetCollisions()
@@ -358,29 +363,12 @@ namespace SpiritKing.Components.Posessables
 
             PosessRay.Target = new Point2(InputController.GetRightStickX() * 300 + PosessRay.Position.X, -(InputController.GetRightStickY() * 300) + PosessRay.Position.Y);
 
-            if (InputController.IsPressed(Buttons.RightShoulder) && _posessCooldownTimer.ElapsedGameTime.TotalSeconds > POSESS_TIMER_WAIT_TIME)
-            {
-                if (_targetedPosessables.Count > 0)
-                {
-                    var nextPosessable = _targetedPosessables.First();
-                    nextPosessable.IsHighlighted = false;
-                    nextPosessable.IsPosessed = true;
-                    this.IsPosessed = false;
-                    this.PosessRay.Target = this.PosessRay.Position;
-                    this.Velocity = new Vector2(0, this.Velocity.Y);
-                    this.PlayerState.MovementX = PlayerState.MovementStateX.Idle;
-                    _posessCooldownTimer.ElapsedGameTime = TimeSpan.Zero;
-                    PosessableSwitched?.Invoke(nextPosessable);
-
-                }
-            }
-
             Stats.Stamina -= NormalAttack.Update(seconds, PlayerAttacked, PlayerState.IsExhausted, Buttons.Y);
         }
 
         private void HandleState(float seconds)
         {
-
+            var velocityDecay = (Math.Sign(Velocity.X) * (10 * seconds));
             if (PlayerState.MovementY == PlayerState.MovementStateY.Jumped)
             {
                 Velocity = new Vector2(Velocity.Y, Stats.JumpStrength);
@@ -393,7 +381,7 @@ namespace SpiritKing.Components.Posessables
 
             if (PlayerState.MovementX == PlayerState.MovementStateX.Idle)
             {
-                Velocity = new Vector2(0, Velocity.Y);
+                Velocity = new Vector2(Velocity.X - velocityDecay, Velocity.Y);
             }
             else if (PlayerState.MovementX == PlayerState.MovementStateX.Slowing)
             {
@@ -410,6 +398,17 @@ namespace SpiritKing.Components.Posessables
             {
                 Velocity = new Vector2(Velocity.X + Stats.Acceleration, Velocity.Y);
                 PlayerState.LastDirection = PlayerState.LastLookState.Right;
+            }
+            else if (PlayerState.MovementX == PlayerState.MovementStateX.KnockedBack)
+            {
+                if (Math.Abs(Velocity.X) < 2)
+                {
+                    PlayerState.MovementX = PlayerState.MovementStateX.Idle;
+                }
+                else
+                {
+                    Velocity = new(Velocity.X - velocityDecay, Velocity.Y);
+                }
             }
 
             if (Stats.Stamina < 0)
@@ -448,7 +447,6 @@ namespace SpiritKing.Components.Posessables
             if (PlayerState.IsRunning && !PlayerState.IsExhausted)
             {
                 Stats.Stamina -= Stats.StaminaRegenSpeed * seconds;
-
             }
             else
             {
@@ -499,10 +497,12 @@ namespace SpiritKing.Components.Posessables
                     Position = new Vector2(_wallCollider.Shape.Left - Stats.Width, Position.Y);
                     Velocity = new Vector2(0, Velocity.Y);
                     break;
+
                 case PlayerState.CollidingXState.Left:
                     Position = new Vector2(_wallCollider.Shape.Right, Position.Y);
                     Velocity = new Vector2(0, Velocity.Y);
                     break;
+
                 default:
                     _wallCollider = null;
                     break;
@@ -522,6 +522,7 @@ namespace SpiritKing.Components.Posessables
             _canShiftLeftRay.Position = new Vector2(Position.X + (Stats.Width * 0.8F), Position.Y - 25);
             _canShiftRightRay.Position = new Vector2(Position.X + (Stats.Width * 0.2F), Position.Y - 25);
             PosessRay.Position = new Point2(Position.X + (Stats.Width / 2), Position.Y + (Stats.Height / 2));
+            EnemyAIFieldOfView.SetPosition(new Vector2(Position.X - 400, Position.Y - 400));
 
             _enemyHealthBar.Position = new Vector2(Position.X, Position.Y - 10);
 
@@ -537,7 +538,12 @@ namespace SpiritKing.Components.Posessables
             _outlineRect.Position = _position;
         }
 
-        private void ReceiveDamage(int damage)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="damage"></param>
+        /// <param name="knockbackDirection"> which way this should be knocked back. Left to right with -1 being left and 1 being right.</param>
+        private void ReceiveDamage(int damage, float knockbackDirection, float knockbackStrenght)
         {
             Stats.Health -= damage;
             if (IsPosessed)
@@ -548,6 +554,8 @@ namespace SpiritKing.Components.Posessables
             {
                 _enemyHealthBar.SetCurrentHealth(Stats.Health);
             }
+            Velocity = new(knockbackDirection * knockbackStrenght, Velocity.Y - knockbackStrenght);
+            PlayerState.MovementX = PlayerState.MovementStateX.KnockedBack;
 
             if (Stats.Health < 1)
             {
@@ -571,35 +579,41 @@ namespace SpiritKing.Components.Posessables
             }
         }
 
-        private void Signal_GetPosessableCollidable(IPosessable posessable)
+        private void Signal_PlayerAttacked(Attack attack)
         {
-            if (posessable != this)
+            var attackPosition = attack.AttackCollisionShape.GetPosition();
+            if (Collider.IsColliding(attack.AttackCollisionShape))
             {
-                if (PosessRay.Intersects(posessable.PosessableCollider.Shape) && !posessable.Collider.Shape.Contains(PosessRay.Position) && IsPosessed)
+                var knockbackDirection = 0;
+                // attacker is on the right
+                if (attackPosition.X > Position.X)
                 {
-                    posessable.IsHighlighted = true;
-                    if(!_targetedPosessables.Contains(posessable))
-                    {
-                        _targetedPosessables.Add(posessable);
-                    }
+                    knockbackDirection = -1;
                 }
                 else
                 {
-                    posessable.IsHighlighted = false;
-                    if (_targetedPosessables.Contains(posessable))
-                    {
-                        _targetedPosessables.Remove(posessable);
-                    }
+                    knockbackDirection = 1;
                 }
+                ReceiveDamage(attack.BaseDamage, knockbackDirection, attack.KnockBack);
             }
         }
 
-        private void Signal_PlayerAttacked(Attack attack)
+        public void Posess()
         {
-            if (Collider.IsColliding(attack.AttackCollisionShape))
-            {
-                ReceiveDamage(attack.BaseDamage);
-            }
+            IsHighlighted = false;
+            IsPosessed = true;
+            PosessRay.Target = PosessRay.Position;
+            Velocity = new Vector2(0, Velocity.Y);
+            PlayerState.MovementX = PlayerState.MovementStateX.Idle;
+            _posessCooldownTimer.ElapsedGameTime = TimeSpan.Zero;
+        }
+
+        public void Unposess()
+        {
+            IsPosessed = false;
+            PosessRay.Target = this.PosessRay.Position;
+            Velocity = new Vector2(0, this.Velocity.Y);
+            PlayerState.MovementX = PlayerState.MovementStateX.Idle;
         }
     }
 }

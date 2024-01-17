@@ -1,21 +1,26 @@
-﻿using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework;
-using SpiritKing.Controllers.Models;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
 using System.Threading;
 
 namespace SpiritKing.Controllers
 {
     public static class InputController
     {
-        static GamePadState currentGamePadState;
-        static GamePadState previousGamePadState;
+        public enum InputMode
+        {
+            MenuController,
+            PlayerController
+        }
+
+        private static GamePadState currentGamePadState;
+        private static GamePadState previousGamePadState;
         public static bool IsReady { get; set; } = false;
+
+        public static InputMode CurrentInputMode { get; set; }
+
+        public static float RightStickDeadzone { get; set; } = 0.1f;
+        public static float LeftStickDeadzone { get; set; } = 0.1f;
 
         public static GamePadState GetState()
         {
@@ -23,6 +28,7 @@ namespace SpiritKing.Controllers
             currentGamePadState = GamePad.GetState(PlayerIndex.One);
             return currentGamePadState;
         }
+
         public static bool IsPressed(Buttons button)
         {
             if (IsReady)
@@ -40,7 +46,6 @@ namespace SpiritKing.Controllers
             if (IsReady)
             {
                 return currentGamePadState.IsButtonDown(button) && !previousGamePadState.IsButtonDown(button);
-
             }
             else
             {
@@ -53,7 +58,6 @@ namespace SpiritKing.Controllers
             if (IsReady)
             {
                 return currentGamePadState.ThumbSticks.Left.X;
-
             }
             else
             {
@@ -66,7 +70,6 @@ namespace SpiritKing.Controllers
             if (IsReady)
             {
                 return currentGamePadState.ThumbSticks.Left.Y;
-
             }
             else
             {
@@ -79,7 +82,6 @@ namespace SpiritKing.Controllers
             if (IsReady)
             {
                 return currentGamePadState.ThumbSticks.Right.X;
-
             }
             else
             {
@@ -92,12 +94,29 @@ namespace SpiritKing.Controllers
             if (IsReady)
             {
                 return currentGamePadState.ThumbSticks.Right.Y;
-
             }
             else
             {
                 return 0;
             }
+        }
+
+        public static bool GetRightStickPastDeadzone()
+        {
+            if (IsReady)
+            {
+                return (Math.Abs(currentGamePadState.ThumbSticks.Right.Y) > RightStickDeadzone) || (Math.Abs(currentGamePadState.ThumbSticks.Right.X) > RightStickDeadzone);
+            }
+            return false;
+        }
+
+        public static bool GetLeftStickPastDeadzone()
+        {
+            if (IsReady)
+            {
+                return (Math.Abs(currentGamePadState.ThumbSticks.Left.Y) > LeftStickDeadzone) || (Math.Abs(currentGamePadState.ThumbSticks.Left.X) > LeftStickDeadzone);
+            }
+            return false;
         }
 
         public static void RumbleController(bool IsRumbling)
@@ -122,6 +141,5 @@ namespace SpiritKing.Controllers
         {
             GamePad.SetVibration(PlayerIndex.One, 0f, 0f);
         }
-
     }
 }

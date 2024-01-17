@@ -7,6 +7,7 @@ namespace SpiritKing.Components
     public static class Utils
     {
         private static Texture2D _texture;
+
         private static Texture2D GetTexture(SpriteBatch spriteBatch)
         {
             if (_texture == null)
@@ -32,5 +33,4 @@ namespace SpiritKing.Components
             spriteBatch.Draw(GetTexture(spriteBatch), point, null, color, angle, origin, scale, SpriteEffects.None, 0);
         }
     }
-
 }

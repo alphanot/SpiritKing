@@ -4,7 +4,6 @@ using SpiritKing.Controllers;
 using SpiritKing.Scenes;
 using System;
 using System.Diagnostics;
-using System.Runtime.Intrinsics.Arm;
 
 namespace SpiritKing
 {
@@ -13,7 +12,7 @@ namespace SpiritKing
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private SceneController _sceneController;
-        Texture2D whiteRectangle;
+        private Texture2D whiteRectangle;
 
         public Main()
         {
@@ -30,7 +29,7 @@ namespace SpiritKing
             try
             {
                 _sceneController = new SceneController();
-                _sceneController.SetScene(new GameScene(this));
+                _sceneController.SetScene(new TitleScreenScene(this));
                 base.Initialize();
             }
             catch (Exception ex)
@@ -52,7 +51,6 @@ namespace SpiritKing
             {
                 Debug.WriteLine(ex.ToString());
             }
-
         }
 
         protected override void UnloadContent()
@@ -66,7 +64,6 @@ namespace SpiritKing
             {
                 Debug.WriteLine(ex.ToString());
             }
-
         }
 
         protected override void Update(GameTime gameTime)
@@ -81,7 +78,6 @@ namespace SpiritKing
             {
                 Debug.WriteLine(ex.ToString());
             }
-
         }
 
         protected override void Draw(GameTime gameTime)

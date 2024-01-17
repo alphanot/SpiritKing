@@ -1,18 +1,9 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended.Particles.Modifiers.Containers;
-using MonoGame.Extended.Particles.Modifiers.Interpolators;
-using MonoGame.Extended.Particles.Modifiers;
-using MonoGame.Extended.Particles.Profiles;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Particles;
 using MonoGame.Extended.TextureAtlases;
-using MonoGame.Extended;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
 using SpiritKing.Components.Interfaces;
+using System.Collections.Generic;
 
 namespace SpiritKing.Controllers
 {

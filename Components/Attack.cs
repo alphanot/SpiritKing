@@ -1,21 +1,9 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using SpiritKing.Components.States;
+﻿using Microsoft.Xna.Framework.Input;
 using SpiritKing.Controllers;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.Contracts;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpiritKing.Components
 {
-    
     public class Attack
     {
         public CollisionShape AttackCollisionShape { get; set; }
@@ -40,7 +28,7 @@ namespace SpiritKing.Components
 
         public bool IsCoolingDown { get; set; } = false;
 
-        public Attack(CollisionShape collisionShape, float attackSpeed, float attackCooldown, int baseDamage,float staminaDrain, float knockBack)
+        public Attack(CollisionShape collisionShape, float attackSpeed, float attackCooldown, int baseDamage, float staminaDrain, float knockBack)
         {
             AttackCollisionShape = collisionShape;
             AttackDuration = attackSpeed;
@@ -52,7 +40,6 @@ namespace SpiritKing.Components
 
         public float Update(float seconds, Action<Attack> func, bool isExausted, Buttons btn)
         {
-
             if (IsActive)
             {
                 AttackDurationCounter -= seconds;
@@ -64,7 +51,6 @@ namespace SpiritKing.Components
                 AttackCooldownCounter = AttackCooldown;
                 IsActive = false;
             }
-
 
             if (IsCoolingDown)
             {

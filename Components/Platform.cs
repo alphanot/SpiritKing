@@ -3,10 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using SpiritKing.Components.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpiritKing.Components
 {
@@ -18,9 +14,12 @@ namespace SpiritKing.Components
         public CollisionShape Collider { get; set; }
 
         public static event Action<CollisionShape> GetCollidable;
+
         private Texture2D _tempSprite { get; set; }
 
-        public Platform(Game game) : this(game, 1, Vector2.Zero, Vector2.Zero) { }
+        public Platform(Game game) : this(game, 1, Vector2.Zero, Vector2.Zero)
+        {
+        }
 
         public Platform(Game game, int drawOrder, Vector2 position, Vector2 size)
         {

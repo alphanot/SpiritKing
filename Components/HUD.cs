@@ -1,12 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended.BitmapFonts;
-using MonoGame.Extended.Sprites;
 using SpiritKing.Components.Interfaces;
 using SpiritKing.Components.Posessables;
 using System;
-using System.Threading;
-using static System.Net.Mime.MediaTypeNames;
 using RectangleF = MonoGame.Extended.RectangleF;
 
 namespace SpiritKing.Components
@@ -14,7 +10,7 @@ namespace SpiritKing.Components
     public class HUD : INode
     {
         public int DrawOrder => 100;
-        
+
         private float _MAX_HEALTH = 0;
         private float _MAX_STAMINA = 0;
         private float _currentHealth = 0;
@@ -41,8 +37,6 @@ namespace SpiritKing.Components
         private bool _healthFlashEnabled;
         private SpriteFont _font;
 
-
-
         public HUD(Game game, float maxHealth, float maxStamina, float currentHealth, float currentStamina, bool isExhausted)
         {
             _font = game.Content.Load<SpriteFont>("Fonts/HUDText");
@@ -52,7 +46,7 @@ namespace SpiritKing.Components
 
             _staminaSprite = new Texture2D(game.GraphicsDevice, 1, 1);
             _staminaSprite.SetData(new[] { Color.White });
-            _staminaColor = isExhausted? Color.Yellow: Color.Green;
+            _staminaColor = isExhausted ? Color.Yellow : Color.Green;
 
             _posessTimerSprite = new Texture2D(game.GraphicsDevice, 1, 1);
             _posessTimerSprite.SetData(new[] { Color.White });
@@ -67,7 +61,6 @@ namespace SpiritKing.Components
             _healthFlashTimer = new GameTime();
         }
 
-
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             // Draw health bar
@@ -77,7 +70,6 @@ namespace SpiritKing.Components
             // Draw stamina bar
             spriteBatch.Draw(_staminaSprite, _staminaPosition, (Rectangle)_staminaRect, _staminaColor);
             spriteBatch.DrawString(_font, (int)_currentStamina + "/" + (int)_MAX_STAMINA, _staminaPosition + new Vector2(0, -2), Color.White);
-
 
             if (_posessCanActivate)
             {
@@ -99,7 +91,7 @@ namespace SpiritKing.Components
             {
                 _healthColor = Color.White;
             }
-            
+
             if (_healthFlashTimer.ElapsedGameTime > TimeSpan.FromMilliseconds(300))
             {
                 _healthFlashEnabled = false;
@@ -119,7 +111,7 @@ namespace SpiritKing.Components
         {
             _currentStamina = currentStamina;
             _staminaRect.Width = (_currentStamina / _MAX_STAMINA) * _MAX_STAMINA;
-            _staminaColor = isExhausted? Color.Yellow : Color.Green;
+            _staminaColor = isExhausted ? Color.Yellow : Color.Green;
         }
 
         public void SetHUD(float maxHealth, float maxStamina, float currentHealth, float currentStamina, bool isExhausted)

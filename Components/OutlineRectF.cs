@@ -72,7 +72,6 @@ namespace SpiritKing.Components
         public void Dispose()
         {
             sprite?.Dispose();
-
         }
     }
 }

@@ -2,7 +2,9 @@
 {
     public class PlayerState
     {
-        public PlayerState() { }
+        public PlayerState()
+        { }
+
         public MovementStateY MovementY { get; set; }
         public MovementStateX MovementX { get; set; }
         public CollidingXState CollidingX { get; set; }
@@ -20,12 +22,14 @@
         public bool Grounded = false;
         public bool IsRunning = false;
         public bool IsExhausted = false;
+
         public enum MovementStateX
         {
             Idle,
             Slowing,
             MoveLeft,
-            MoveRight
+            MoveRight,
+            KnockedBack
         }
 
         public enum MovementStateY

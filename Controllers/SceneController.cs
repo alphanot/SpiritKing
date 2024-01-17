@@ -1,9 +1,6 @@
-﻿
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SpiritKing.Components;
-using SpiritKing.Components.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,7 +12,8 @@ namespace SpiritKing.Controllers
 
         public Scene CurrentScene { get; set; }
 
-        public SceneController() { }
+        public SceneController()
+        { }
 
         public SceneController(List<Scene> scenes)
         {
@@ -47,10 +45,11 @@ namespace SpiritKing.Controllers
             CurrentScene.Update(gameTime);
         }
 
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch) 
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             CurrentScene.Draw(gameTime, spriteBatch);
         }
+
         private void Scene_SwitchScene(Scene nextScene)
         {
             CurrentScene.Dispose();

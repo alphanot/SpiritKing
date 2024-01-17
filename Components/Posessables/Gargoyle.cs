@@ -1,10 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace SpiritKing.Components.Posessables
 {
@@ -12,7 +6,7 @@ namespace SpiritKing.Components.Posessables
     {
         public override Attack NormalAttack { get; set; }
 
-        public Gargoyle(Game game, bool isPosesed = false) : base(game, new Stats()
+        public Gargoyle(Game game, Vector2 position, bool isPosesed = false) : base(game, new Stats()
         {
             WalkSpeed = 175,
             RunSpeed = 320,
@@ -30,8 +24,9 @@ namespace SpiritKing.Components.Posessables
             Health = 100,
             Stamina = 170,
             Color = Color.DarkKhaki,
-
-        }, isPosesed) {
+        }, isPosesed)
+        {
+            Position = position;
             NormalAttack = new Attack(new CollisionShape(Position.X, Position.Y, 70, 80), 0.2f, 0.2f, 10, 30, 10);
         }
     }

@@ -1,10 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpiritKing.Components
 {
@@ -23,7 +17,7 @@ namespace SpiritKing.Components
         public float MaxStamina { get; set; } = 0;
         public float HealthRegenSpeed { get; set; } = 0;
         public float StaminaRegenSpeed { get; set; } = 0;
-        public float Health {  get; set; } = 0;
+        public float Health { get; set; } = 0;
         public float Stamina { get; set; } = 0;
 
         public float Height { get; set; } = 0;
@@ -31,7 +25,8 @@ namespace SpiritKing.Components
         public string Name { get; set; } = "";
 
         public Color Color { get; set; } = Color.White;
-        public Stats() { }
 
+        public Stats()
+        { }
     }
 }

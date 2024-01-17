@@ -3,11 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using SpiritKing.Components.Interfaces;
 using SpiritKing.Components.Posessables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpiritKing.Components
 {
@@ -25,7 +20,6 @@ namespace SpiritKing.Components
         public Vector2 Position { get; set; } = Vector2.Zero;
         private Color _healthColor = Color.Red;
 
-
         public EnemyHealthBar(Game game, float currentHealth, float maxHealth, int maxHealthBarWidth)
         {
             _currentHealth = currentHealth;
@@ -36,9 +30,7 @@ namespace SpiritKing.Components
             _healthSprite.SetData(new[] { Color.White });
             SetCurrentHealth(currentHealth);
             Posessable.UpdateHealthBar += SetCurrentHealth;
-
         }
-
 
         public void Dispose()
         {
@@ -50,12 +42,17 @@ namespace SpiritKing.Components
             spriteBatch.Draw(_healthSprite, Position, (Rectangle)_healthRect, _healthColor);
         }
 
-        public void Update(GameTime gameTime) { }
+        public void Update(GameTime gameTime)
+        { }
 
         public void SetCurrentHealth(float currentHealth)
         {
             _currentHealth = currentHealth;
             _healthRect.Width = (_currentHealth / _MAX_HEALTH) * _maxHealthBarWidth;
+            if (_currentHealth < (_MAX_HEALTH / 2))
+            {
+                _healthColor = Color.Yellow;
+            }
         }
     }
 }

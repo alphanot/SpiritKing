@@ -1,22 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using MonoGame.Extended.Particles.Modifiers.Containers;
-using MonoGame.Extended.Particles.Modifiers.Interpolators;
-using MonoGame.Extended.Particles.Modifiers;
-using MonoGame.Extended.Particles.Profiles;
-using MonoGame.Extended.Particles;
-using MonoGame.Extended;
 using SpiritKing.Components;
 using SpiritKing.Controllers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
-using Microsoft.Xna.Framework.Media;
-using System.Reflection.Metadata;
 
 namespace SpiritKing.Scenes
 {
@@ -26,11 +12,12 @@ namespace SpiritKing.Scenes
         private MenuButton StartBtn;
         private MenuButton SettingsBtn;
         private MenuButton ExitBtn;
-        
+
         private MenuController _menuController;
+
         //ParticleController _bottomOfScreenParticles;
         public override event Action<Scene> SceneSwitched;
-        Random r = new Random();
+
         public TitleScreenScene(Game game) : base(game)
         {
             TitleText = new Label(game, "Posessed Will", Vector2.Zero, Color.DarkRed);
@@ -38,14 +25,14 @@ namespace SpiritKing.Scenes
             SettingsBtn = new MenuButton(game, new Point(0, 0), new Point(350, 0), "Settings", 0);
             ExitBtn = new MenuButton(game, new Point(0, 0), new Point(350, 0), "Exit", 0);
             _menuController = new MenuController(game, new MenuButton[] { StartBtn, SettingsBtn, ExitBtn });
-            
+
             StartBtn.Action = StartClicked;
             SettingsBtn.Action = SettingsClicked;
             ExitBtn.Action = ExitClicked;
             StartBtn.Highlighted = true;
             BackgroundColor = Color.Black;
             var screen = game.GraphicsDevice.Viewport;
-            //_bottomOfScreenParticles = new ParticleController(game.GraphicsDevice, new Vector2(screen.Width / 2, screen.Height));
+            ////_bottomOfScreenParticles = new ParticleController(game.GraphicsDevice, new Vector2(screen.Width / 2, screen.Height));
 
             //_bottomOfScreenParticles.AddEmitter(
             //    new ParticleEmitter(_bottomOfScreenParticles.TextureRegion, 250, TimeSpan.FromSeconds(4),
@@ -88,8 +75,8 @@ namespace SpiritKing.Scenes
             Nodes.Add(TitleText);
             MusicController.PlaySong(MusicController.OrganTheme, true);
             TitleText.Position = new Vector2((screen.Width - TitleText.STRING_SIZE.X) / 2, (screen.Height - TitleText.STRING_SIZE.Y) / 8);
-            StartBtn.Position = new Point((screen.Width - StartBtn.Size.X) /2, 2 * (screen.Height - StartBtn.Size.Y) / 5);
-            SettingsBtn.Position = new Point((screen.Width - SettingsBtn.Size.X) /2, 3 * (screen.Height - SettingsBtn.Size.Y) / 5);
+            StartBtn.Position = new Point((screen.Width - StartBtn.Size.X) / 2, 2 * (screen.Height - StartBtn.Size.Y) / 5);
+            SettingsBtn.Position = new Point((screen.Width - SettingsBtn.Size.X) / 2, 3 * (screen.Height - SettingsBtn.Size.Y) / 5);
             ExitBtn.Position = new Point((screen.Width - ExitBtn.Size.X) / 2, 4 * (screen.Height - ExitBtn.Size.Y) / 5);
             InputController.IsReady = true;
         }
@@ -101,10 +88,10 @@ namespace SpiritKing.Scenes
 
         public override void Dispose()
         {
+            base.Dispose();
             //_bottomOfScreenParticles.Dispose();
             _menuController.Dispose();
             TitleText.Dispose();
-            base.Dispose();
         }
 
         private void StartClicked()
@@ -117,6 +104,7 @@ namespace SpiritKing.Scenes
         {
             Debug.WriteLine("Settings clicked.");
         }
+
         private void ExitClicked()
         {
             Dispose();

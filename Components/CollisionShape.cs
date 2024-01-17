@@ -1,13 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
-using MonoGame.Extended.Sprites;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpiritKing.Components
 {
@@ -20,7 +13,6 @@ namespace SpiritKing.Components
         public bool DebugOn;
 
         private bool _allowDraw = false;
-
 
         private GraphicsDevice _device;
 
@@ -35,9 +27,7 @@ namespace SpiritKing.Components
             {
                 _debugTexture = new Texture2D(graphicsDevice, 1, 1);
                 _debugTexture.SetData(new[] { Color.OrangeRed });
-
             }
-
         }
 
         public CollisionShape(float x, float y, float width, float height, bool allowDraw = false, GraphicsDevice graphicsDevice = null)
@@ -48,14 +38,21 @@ namespace SpiritKing.Components
             if (other == null) return false;
             return Shape.Intersects(other.Shape);
         }
+
         public bool IsColliding(CollisionShape other, float modifierX, float modifierY)
         {
             if (other == null) return false;
             return Shape.Intersects(new RectangleF(other.Shape.Position.X + modifierX, other.Shape.Position.Y + modifierY, Shape.Width, Shape.Height));
         }
+
         public void SetPosition(Vector2 position)
         {
             Shape = new RectangleF(position.X, position.Y, Shape.Width, Shape.Height);
+        }
+
+        public Vector2 GetPosition()
+        {
+            return Shape.Position;
         }
 
         public void draw(SpriteBatch spriteBatch)
@@ -72,7 +69,6 @@ namespace SpiritKing.Components
             {
                 _debugTexture.Dispose();
                 _debugTexture = null;
-
             }
             if (_device != null)
             {
@@ -82,6 +78,7 @@ namespace SpiritKing.Components
         }
 
         #region Collision
+
         public bool IsCollidingLeft(CollisionShape _otherCollider)
         {
             return this.Shape.Right > _otherCollider.Shape.Left &&
@@ -114,6 +111,6 @@ namespace SpiritKing.Components
               this.Shape.Left < _otherCollider.Shape.Right;
         }
 
-        #endregion
+        #endregion Collision
     }
 }

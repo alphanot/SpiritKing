@@ -1,3 +1,2 @@
-﻿
-using var game = new SpiritKing.Main();
+﻿using var game = new SpiritKing.Main();
 game.Run();
