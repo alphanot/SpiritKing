@@ -21,7 +21,7 @@ namespace SpiritKing.Controllers
         public void Update(GameTime gameTime)
         {
             InputController.GetState();
-            if (InputController.IsFirstPress(Microsoft.Xna.Framework.Input.Buttons.DPadDown))
+            if (InputController.IsFirstPress(Microsoft.Xna.Framework.Input.Buttons.DPadDown, InputController.GameState.Menu))
             {
                 HighlightChanged(false);
                 currentBtnIndex++;
@@ -31,7 +31,7 @@ namespace SpiritKing.Controllers
                 }
                 HighlightChanged(true);
             }
-            else if (InputController.IsFirstPress(Microsoft.Xna.Framework.Input.Buttons.DPadUp))
+            else if (InputController.IsFirstPress(Microsoft.Xna.Framework.Input.Buttons.DPadUp, InputController.GameState.Menu))
             {
                 HighlightChanged(false);
                 currentBtnIndex--;
@@ -42,7 +42,7 @@ namespace SpiritKing.Controllers
                 HighlightChanged(true);
             }
 
-            if (InputController.IsFirstPress(Microsoft.Xna.Framework.Input.Buttons.A))
+            if (InputController.IsFirstPress(Microsoft.Xna.Framework.Input.Buttons.A, InputController.GameState.Menu))
             {
                 Buttons[currentBtnIndex].Action?.Invoke();
             }

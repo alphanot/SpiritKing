@@ -290,11 +290,11 @@ namespace SpiritKing.Components.Posessables
         private void HandleInput(float seconds)
         {
             InputController.GetState();
-            if (InputController.GetLeftStickX() < 0)
+            if (InputController.GetLeftStickX(InputController.GameState.Game) < 0)
             {
                 PlayerState.MovementX = PlayerState.MovementStateX.MoveLeft;
             }
-            else if (InputController.GetLeftStickX() > 0)
+            else if (InputController.GetLeftStickX(InputController.GameState.Game) > 0)
             {
                 PlayerState.MovementX = PlayerState.MovementStateX.MoveRight;
             }
@@ -310,7 +310,7 @@ namespace SpiritKing.Components.Posessables
                 }
             }
 
-            PlayerState.IsRunning = InputController.IsPressed(Buttons.LeftShoulder);
+            PlayerState.IsRunning = InputController.IsPressed(Buttons.LeftShoulder, InputController.GameState.Game);
 
             if (PlayerState.CollidingY == PlayerState.CollidingYState.Ground)
             {
@@ -321,7 +321,7 @@ namespace SpiritKing.Components.Posessables
                 _coyoteTimeCounter -= seconds;
             }
 
-            if (InputController.IsFirstPress(Buttons.A))
+            if (InputController.IsFirstPress(Buttons.A, InputController.GameState.Game))
             {
                 _jumpBufferCounter = _jumpBufferTime;
             }
@@ -330,7 +330,7 @@ namespace SpiritKing.Components.Posessables
                 _jumpBufferCounter -= seconds;
             }
 
-            if (InputController.IsPressed(Buttons.A))
+            if (InputController.IsPressed(Buttons.A, InputController.GameState.Game))
             {
                 if (_jumpBufferCounter > 0)
                 {
@@ -361,7 +361,7 @@ namespace SpiritKing.Components.Posessables
                 }
             }
 
-            PosessRay.Target = new Point2(InputController.GetRightStickX() * 300 + PosessRay.Position.X, -(InputController.GetRightStickY() * 300) + PosessRay.Position.Y);
+            PosessRay.Target = new Point2(InputController.GetRightStickX(InputController.GameState.Game) * 300 + PosessRay.Position.X, -(InputController.GetRightStickY(InputController.GameState.Game) * 300) + PosessRay.Position.Y);
 
             Stats.Stamina -= NormalAttack.Update(seconds, PlayerAttacked, PlayerState.IsExhausted, Buttons.Y);
         }

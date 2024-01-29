@@ -7,11 +7,19 @@ namespace SpiritKing.Controllers
 {
     public static class InputController
     {
+        public enum GameState
+        {
+            Game,
+            Menu
+        }
+
         public enum InputMode
         {
             MenuController,
             PlayerController
         }
+
+        private static GameState _gameState;
 
         private static GamePadState currentGamePadState;
         private static GamePadState previousGamePadState;
@@ -29,8 +37,12 @@ namespace SpiritKing.Controllers
             return currentGamePadState;
         }
 
-        public static bool IsPressed(Buttons button)
+        public static bool IsPressed(Buttons button, GameState state)
         {
+            if(state != _gameState)
+            {
+                return false;
+            }
             if (IsReady)
             {
                 return currentGamePadState.IsButtonDown(button);
@@ -41,8 +53,12 @@ namespace SpiritKing.Controllers
             }
         }
 
-        public static bool IsFirstPress(Buttons button)
+        public static bool IsFirstPress(Buttons button, GameState state)
         {
+            if (state != _gameState)
+            {
+                return false;
+            }
             if (IsReady)
             {
                 return currentGamePadState.IsButtonDown(button) && !previousGamePadState.IsButtonDown(button);
@@ -53,8 +69,12 @@ namespace SpiritKing.Controllers
             }
         }
 
-        public static float GetLeftStickX()
+        public static float GetLeftStickX(GameState state)
         {
+            if (state != _gameState)
+            {
+                return 0;
+            }
             if (IsReady)
             {
                 return currentGamePadState.ThumbSticks.Left.X;
@@ -65,8 +85,12 @@ namespace SpiritKing.Controllers
             }
         }
 
-        public static float GetLeftStickY()
+        public static float GetLeftStickY(GameState state)
         {
+            if (state != _gameState)
+            {
+                return 0;
+            }
             if (IsReady)
             {
                 return currentGamePadState.ThumbSticks.Left.Y;
@@ -77,8 +101,12 @@ namespace SpiritKing.Controllers
             }
         }
 
-        public static float GetRightStickX()
+        public static float GetRightStickX(GameState state)
         {
+            if (state != _gameState)
+            {
+                return 0;
+            }
             if (IsReady)
             {
                 return currentGamePadState.ThumbSticks.Right.X;
@@ -89,8 +117,12 @@ namespace SpiritKing.Controllers
             }
         }
 
-        public static float GetRightStickY()
+        public static float GetRightStickY(GameState state)
         {
+            if (state != _gameState)
+            {
+                return 0;
+            }
             if (IsReady)
             {
                 return currentGamePadState.ThumbSticks.Right.Y;
@@ -101,8 +133,12 @@ namespace SpiritKing.Controllers
             }
         }
 
-        public static bool GetRightStickPastDeadzone()
+        public static bool GetRightStickPastDeadzone(GameState state)
         {
+            if (state != _gameState)
+            {
+                return false;
+            }
             if (IsReady)
             {
                 return (Math.Abs(currentGamePadState.ThumbSticks.Right.Y) > RightStickDeadzone) || (Math.Abs(currentGamePadState.ThumbSticks.Right.X) > RightStickDeadzone);
@@ -110,8 +146,12 @@ namespace SpiritKing.Controllers
             return false;
         }
 
-        public static bool GetLeftStickPastDeadzone()
+        public static bool GetLeftStickPastDeadzone(GameState state)
         {
+            if (state != _gameState)
+            {
+                return false;
+            }
             if (IsReady)
             {
                 return (Math.Abs(currentGamePadState.ThumbSticks.Left.Y) > LeftStickDeadzone) || (Math.Abs(currentGamePadState.ThumbSticks.Left.X) > LeftStickDeadzone);
@@ -119,27 +159,40 @@ namespace SpiritKing.Controllers
             return false;
         }
 
-        public static void RumbleController(bool IsRumbling)
+        public static void RumbleController(bool IsRumbling, GameState state)
         {
-            if (IsRumbling)
+            if (state != _gameState)
+            {
+                if (IsRumbling)
+                {
+                    GamePad.SetVibration(PlayerIndex.One, 1.0f, 1.0f);
+                }
+                else
+                {
+                    GamePad.SetVibration(PlayerIndex.One, 0f, 0f);
+                }
+            }
+        }
+
+        public static void BumpController(GameState state)
+        {
+            if (state != _gameState)
             {
                 GamePad.SetVibration(PlayerIndex.One, 1.0f, 1.0f);
+                new Timer(x => StopRumble(state), null, 1, Timeout.Infinite);
             }
-            else
+        }
+
+        public static void StopRumble(GameState state)
+        {
+            if (state != _gameState)
             {
                 GamePad.SetVibration(PlayerIndex.One, 0f, 0f);
             }
         }
 
-        public static void BumpController()
-        {
-            GamePad.SetVibration(PlayerIndex.One, 1.0f, 1.0f);
-            new Timer(x => StopRumble(), null, 1, Timeout.Infinite);
-        }
+        public static void SetGameState(GameState gameState) => _gameState = gameState;
 
-        public static void StopRumble()
-        {
-            GamePad.SetVibration(PlayerIndex.One, 0f, 0f);
-        }
+        public static GameState GetGameState() => _gameState;
     }
 }

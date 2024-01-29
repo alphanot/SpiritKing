@@ -17,6 +17,7 @@ namespace SpiritKing.Scenes
 
         public GameScene(Game game) : base(game)
         {
+            InputController.SetGameState(InputController.GameState.Game);
             Name = "Game Scene";
             PosessableHandler = new PosessablesHandler();
             PosessableHandler.InitializePosessables(game);
@@ -34,7 +35,7 @@ namespace SpiritKing.Scenes
             Nodes.Add(_hud);
             SortNodes();
             PosessablesHandler.PosessableSwitched += SwitchPosessable;
-            InputController.BumpController();
+            InputController.BumpController(InputController.GameState.Game);
             MusicController.PlaySong(MusicController.Ambience, true);
             InputController.IsReady = true;
         }

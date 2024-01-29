@@ -63,7 +63,7 @@ namespace SpiritKing.Components
                 IsCoolingDown = false;
             }
 
-            if (InputController.IsPressed(btn) && !isExausted && IsReady && !IsCoolingDown)
+            if (InputController.IsPressed(btn, InputController.GameState.Game) && !isExausted && IsReady && !IsCoolingDown)
             {
                 AttackDurationCounter = AttackDuration;
                 IsActive = true;

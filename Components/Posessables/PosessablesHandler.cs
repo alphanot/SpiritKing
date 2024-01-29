@@ -61,7 +61,7 @@ namespace SpiritKing.Components.Posessables
         {
             float seconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            if (InputController.GetRightStickPastDeadzone())
+            if (InputController.GetRightStickPastDeadzone(InputController.GameState.Game))
             {
                 HighlightPosessable();
             }
@@ -71,7 +71,7 @@ namespace SpiritKing.Components.Posessables
                 HighlightedPosessable = null;
             }
 
-            if (InputController.IsPressed(Buttons.RightShoulder) && Player.PosessIsReady() && HighlightedPosessable.CanBePosessed() && HighlightedPosessable != null)
+            if (InputController.IsPressed(Buttons.RightShoulder, InputController.GameState.Game) && Player.PosessIsReady() && HighlightedPosessable.CanBePosessed() && HighlightedPosessable != null)
             {
                 Player.Unposess();
                 Player = HighlightedPosessable;

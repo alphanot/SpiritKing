@@ -20,6 +20,7 @@ namespace SpiritKing.Scenes
 
         public TitleScreenScene(Game game) : base(game)
         {
+            InputController.SetGameState(InputController.GameState.Game);
             TitleText = new Label(game, "Posessed Will", Vector2.Zero, Color.DarkRed);
             StartBtn = new MenuButton(game, new Point(0, 0), new Point(350, 0), "Start", 0);
             SettingsBtn = new MenuButton(game, new Point(0, 0), new Point(350, 0), "Settings", 0);
