@@ -179,7 +179,7 @@ namespace SpiritKing.Controllers
             if (state != _gameState)
             {
                 GamePad.SetVibration(PlayerIndex.One, 1.0f, 1.0f);
-                new Timer(x => StopRumble(state), null, 1, Timeout.Infinite);
+                _ = new Timer(x => StopRumble(state), null, 1, Timeout.Infinite);
             }
         }
 

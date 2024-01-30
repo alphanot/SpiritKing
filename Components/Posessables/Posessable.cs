@@ -52,7 +52,7 @@ namespace SpiritKing.Components.Posessables
 
         public const float POSESS_TIMER_WAIT_TIME = 3f;
 
-        public float posessTimerValue { get; set; }
+        public float PosessTimerValue { get; set; }
         public bool IsPosessed { get; set; } = false;
         public Line PosessRay { get; set; }
 
@@ -75,9 +75,9 @@ namespace SpiritKing.Components.Posessables
         private GameTime _exhaustionTimer;
         private GameTime _posessCooldownTimer;
 
-        private float _coyoteTime = 0.2f;
+        private readonly float _coyoteTime = 0.2f;
         private float _coyoteTimeCounter;
-        private float _jumpBufferTime = 0.2f;
+        private readonly float _jumpBufferTime = 0.2f;
         private float _jumpBufferCounter;
 
         private EnemyHealthBar _enemyHealthBar;
@@ -282,7 +282,7 @@ namespace SpiritKing.Components.Posessables
             }
         }
 
-        private float GetGravity(float seconds)
+        private static float GetGravity(float seconds)
         {
             return Globals.Gravity * seconds;
         }
@@ -584,7 +584,7 @@ namespace SpiritKing.Components.Posessables
             var attackPosition = attack.AttackCollisionShape.GetPosition();
             if (Collider.IsColliding(attack.AttackCollisionShape))
             {
-                var knockbackDirection = 0;
+                float knockbackDirection;
                 // attacker is on the right
                 if (attackPosition.X > Position.X)
                 {

@@ -35,7 +35,7 @@ namespace SpiritKing.Components.Interfaces
 
         public Attack NormalAttack { get; set; }
 
-        public float posessTimerValue { get; set; }
+        public float PosessTimerValue { get; set; }
 
         public bool IsHighlighted { get; set; }
 
