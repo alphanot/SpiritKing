@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Apos.Input;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SpiritKing.Controllers;
 using SpiritKing.Scenes;
@@ -45,6 +46,7 @@ namespace SpiritKing
                 _spriteBatch = new SpriteBatch(GraphicsDevice);
                 whiteRectangle = new Texture2D(GraphicsDevice, 1, 1);
                 whiteRectangle.SetData(new[] { Color.White });
+                InputHelper.Setup(this);
                 Debug.WriteLine(GraphicsDevice.Viewport.Width);
             }
             catch (Exception ex)
@@ -70,7 +72,9 @@ namespace SpiritKing
         {
             try
             {
+                InputHelper.UpdateSetup();
                 _sceneController.CurrentScene.Update(gameTime);
+                InputHelper.UpdateCleanup();
 
                 base.Update(gameTime);
             }
