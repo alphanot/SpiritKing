@@ -36,7 +36,7 @@ public class GamePadStickCondition : ICondition
     public bool Released(bool canConsume = true) => Released(_gamePadStick, _direction, _stickAxis, _gamePadIndex) && InputHelper.IsActive;
 
     public void Consume() { }
-    
+
     public static bool Pressed(GamePadStick gamePadStick, AxisDirection direction, StickAxis stickAxis, int gamePadIndex)
     {
         var newValue = GetNewValue(gamePadStick, stickAxis, gamePadIndex);
@@ -88,10 +88,8 @@ public class GamePadStickCondition : ICondition
             newIsBeforeDeadzone = newValue > -Deadzone;
             oldIsPastDeadzone = oldValue <= -Deadzone;
         }
-        
 
         var isCorrectDirection = direction == AxisDirection.Negative ? newValue < 0 : newValue > 0;
-
 
         return oldIsPastDeadzone && newIsBeforeDeadzone && isCorrectDirection;
     }
@@ -99,7 +97,7 @@ public class GamePadStickCondition : ICondition
     private static float GetOldValue(GamePadStick gamePadStick, StickAxis stickAxis, int gamePadIndex)
     {
         Microsoft.Xna.Framework.Vector2 oldStick = gamePadStick == GamePadStick.Left ?
-            InputHelper.OldGamePad[gamePadIndex].ThumbSticks.Left:
+            InputHelper.OldGamePad[gamePadIndex].ThumbSticks.Left :
             InputHelper.OldGamePad[gamePadIndex].ThumbSticks.Right;
 
         return stickAxis == StickAxis.X ? oldStick.X : oldStick.Y;

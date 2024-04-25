@@ -1,10 +1,9 @@
 ﻿using System.Numerics;
 
-namespace SpiritKing.Components
+namespace SpiritKing.Components;
+
+public static class Globals
 {
-    public static class Globals
-    {
-        public static float Gravity = 1000F;
-        public static Vector2 MaxSpeed = new Vector2(1000, 2000);
-    }
+    public const float GRAVITY = 1000F;
+    public readonly static Vector2 MAX_SPEED = new(1000, 2000);
 }

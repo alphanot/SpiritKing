@@ -39,124 +39,49 @@ public static class InputController
 
     public static bool IsPressed(Buttons button, GameState state)
     {
-        if(state != _gameState)
-        {
-            return false;
-        }
-        if (IsReady)
-        {
-            return currentGamePadState.IsButtonDown(button);
-        }
-        else
-        {
-            return false;
-        }
+        return state == _gameState && IsReady && currentGamePadState.IsButtonDown(button);
     }
 
     public static bool IsFirstPress(Buttons button, GameState state)
     {
-        if (state != _gameState)
-        {
-            return false;
-        }
-        if (IsReady)
-        {
-            return currentGamePadState.IsButtonDown(button) && !previousGamePadState.IsButtonDown(button);
-        }
-        else
-        {
-            return false;
-        }
+        return state == _gameState
+            && IsReady
+            && currentGamePadState.IsButtonDown(button)
+            && !previousGamePadState.IsButtonDown(button);
     }
 
     public static float GetLeftStickX(GameState state)
     {
-        if (state != _gameState)
-        {
-            return 0;
-        }
-        if (IsReady)
-        {
-            return currentGamePadState.ThumbSticks.Left.X;
-        }
-        else
-        {
-            return 0;
-        }
+        return state != _gameState ? 0 : IsReady ? currentGamePadState.ThumbSticks.Left.X : 0;
     }
 
     public static float GetLeftStickY(GameState state)
     {
-        if (state != _gameState)
-        {
-            return 0;
-        }
-        if (IsReady)
-        {
-            return currentGamePadState.ThumbSticks.Left.Y;
-        }
-        else
-        {
-            return 0;
-        }
+        return state != _gameState ? 0 : IsReady ? currentGamePadState.ThumbSticks.Left.Y : 0;
     }
 
     public static float GetRightStickX(GameState state)
     {
-        if (state != _gameState)
-        {
-            return 0;
-        }
-        if (IsReady)
-        {
-            return currentGamePadState.ThumbSticks.Right.X;
-        }
-        else
-        {
-            return 0;
-        }
+        return state != _gameState ? 0 : IsReady ? currentGamePadState.ThumbSticks.Right.X : 0;
     }
 
     public static float GetRightStickY(GameState state)
     {
-        if (state != _gameState)
-        {
-            return 0;
-        }
-        if (IsReady)
-        {
-            return currentGamePadState.ThumbSticks.Right.Y;
-        }
-        else
-        {
-            return 0;
-        }
+        return state != _gameState ? 0 : IsReady ? currentGamePadState.ThumbSticks.Right.Y : 0;
     }
 
     public static bool GetRightStickPastDeadzone(GameState state)
     {
-        if (state != _gameState)
-        {
-            return false;
-        }
-        if (IsReady)
-        {
-            return (Math.Abs(currentGamePadState.ThumbSticks.Right.Y) > RightStickDeadzone) || (Math.Abs(currentGamePadState.ThumbSticks.Right.X) > RightStickDeadzone);
-        }
-        return false;
+        return state == _gameState
+            && IsReady
+            && ((Math.Abs(currentGamePadState.ThumbSticks.Right.Y) > RightStickDeadzone) || (Math.Abs(currentGamePadState.ThumbSticks.Right.X) > RightStickDeadzone));
     }
 
     public static bool GetLeftStickPastDeadzone(GameState state)
     {
-        if (state != _gameState)
-        {
-            return false;
-        }
-        if (IsReady)
-        {
-            return (Math.Abs(currentGamePadState.ThumbSticks.Left.Y) > LeftStickDeadzone) || (Math.Abs(currentGamePadState.ThumbSticks.Left.X) > LeftStickDeadzone);
-        }
-        return false;
+        return state == _gameState
+            && IsReady
+            && ((Math.Abs(currentGamePadState.ThumbSticks.Left.Y) > LeftStickDeadzone) || (Math.Abs(currentGamePadState.ThumbSticks.Left.X) > LeftStickDeadzone));
     }
 
     public static void RumbleController(bool IsRumbling, GameState state)
