@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using SpiritKing.Controllers;
 
 namespace SpiritKing.Components.Posessables;
 
@@ -6,7 +7,7 @@ internal class Hound : Posessable
 {
     public override Attack NormalAttack { get; set; }
 
-    public Hound(Game game, Vector2 position, bool isPosesed = false) : base(game, new Stats()
+    public Hound(Game game, Vector2 position, GameWorldHandler gameWorld, bool isPosesed = false) : base(game, new Stats()
     {
         WalkSpeed = 205,
         RunSpeed = 500,
@@ -24,7 +25,7 @@ internal class Hound : Posessable
         Health = 100,
         Stamina = 210,
         Color = Color.LightSlateGray,
-    }, isPosesed)
+    }, gameWorld, isPosesed)
     {
         Position = position;
         NormalAttack = new Attack(new CollisionShape(Position.X, Position.Y, 10, 44), 0.2f, 0.2f, 10, 30, 10);

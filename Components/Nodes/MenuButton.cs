@@ -2,10 +2,11 @@
 using Microsoft.Xna.Framework.Graphics;
 using SpiritKing.Components.Interfaces;
 using System;
+using System.Collections.Generic;
 
-namespace SpiritKing.Components;
+namespace SpiritKing.Components.Nodes;
 
-public class MenuButton : INode
+public class MenuButton : Interfaces.IDrawable
 {
     public string Text { get; set; }
 
@@ -44,6 +45,11 @@ public class MenuButton : INode
 
     public int DrawOrder => 1;
 
+    public bool Visible => true;
+
+    public List<INode> Children { get; set; }
+
+
     public MenuButton(Game game, Point position, Point size, string text, int padding = 25)
     {
         _font = game.Content.Load<SpriteFont>("Fonts/LabelText");
@@ -56,9 +62,9 @@ public class MenuButton : INode
 
         _STRINGSIZE = _font.MeasureString(Text);
 
-        var newSize = new Point((int)((size.X < _STRINGSIZE.X) ? _STRINGSIZE.X : size.X), (int)((size.Y < _STRINGSIZE.Y) ? _STRINGSIZE.Y : size.Y));
+        var newSize = new Point((int)(size.X < _STRINGSIZE.X ? _STRINGSIZE.X : size.X), (int)(size.Y < _STRINGSIZE.Y ? _STRINGSIZE.Y : size.Y));
 
-        Size = new Point(newSize.X + (padding * 2), newSize.Y + (padding * 2));
+        Size = new Point(newSize.X + padding * 2, newSize.Y + padding * 2);
         outlineRect = new OutlineRectF(texture, Position.X, Position.Y, Size.X, Size.Y, 4);
     }
 
@@ -68,18 +74,15 @@ public class MenuButton : INode
         outlineRect.Dispose();
     }
 
-    public void Update(GameTime gameTime)
-    { }
-
     public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
     {
         if (texture != null)
         {
-            spriteBatch.DrawString(_font, Text, new Vector2(Position.X + ((Size.X - _STRINGSIZE.X) / 2), Position.Y + ((Size.Y - _STRINGSIZE.Y) / 2)), Color.LightGray);
+            spriteBatch.DrawString(_font, Text, new Vector2(Position.X + (Size.X - _STRINGSIZE.X) / 2, Position.Y + (Size.Y - _STRINGSIZE.Y) / 2), Color.LightGray);
 
             if (Highlighted)
             {
-                outlineRect.Draw(spriteBatch);
+                outlineRect.Draw(gameTime, spriteBatch);
             }
         }
     }

@@ -1,15 +1,7 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using System.Collections.Generic;
 
 namespace SpiritKing.Components.Interfaces;
-
 public interface INode
 {
-    public int DrawOrder { get; }
-
-    public void Update(GameTime gameTime);
-
-    public void Draw(GameTime gameTime, SpriteBatch spriteBatch);
-
-    public void Dispose();
+    List<INode> Children { get; set; }
 }

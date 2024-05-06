@@ -7,12 +7,20 @@ using System.Collections.Generic;
 
 namespace SpiritKing.Controllers;
 
-public class ParticleController : INode
+public class ParticleController : Components.Interfaces.IDrawable, Components.Interfaces.IUpdateable
 {
     public ParticleEffect ParticleEffect { get; set; }
     public TextureRegion2D TextureRegion { get; private set; }
 
     public int DrawOrder => 1;
+
+    public bool Enabled => true;
+
+    public int UpdateOrder => 1;
+
+    public bool Visible => true;
+
+    public List<INode> Children { get; set; }
 
     private readonly Texture2D _particleTexture;
 

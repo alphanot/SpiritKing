@@ -1,12 +1,13 @@
-﻿using Microsoft.Xna.Framework.Input;
-using SpiritKing.Controllers;
+﻿using Apos.Input;
+using SpiritKing.Components.Interfaces;
 using System;
+using System.Collections.Generic;
 
 namespace SpiritKing.Components;
 
 public class Attack
 {
-    public CollisionShape AttackCollisionShape { get; set; }
+    public CollisionShape CollisionShape { get; set; }
 
     public float AttackDuration { get; private set; }
 
@@ -28,9 +29,11 @@ public class Attack
 
     public bool IsCoolingDown { get; set; } = false;
 
+    public List<INode> Children { get; set; }
+
     public Attack(CollisionShape collisionShape, float attackSpeed, float attackCooldown, int baseDamage, float staminaDrain, float knockBack)
     {
-        AttackCollisionShape = collisionShape;
+        CollisionShape = collisionShape;
         AttackDuration = attackSpeed;
         AttackCooldown = attackCooldown;
         BaseDamage = baseDamage;
@@ -38,7 +41,7 @@ public class Attack
         StaminaDrain = staminaDrain;
     }
 
-    public float Update(float seconds, Action<Attack> func, bool isExausted, Buttons btn)
+    public float Update(float seconds, Action<Attack> func, bool isExausted, ICondition btnCondition)
     {
         if (IsActive)
         {
@@ -63,7 +66,7 @@ public class Attack
             IsCoolingDown = false;
         }
 
-        if (InputController.IsPressed(btn, InputController.GameState.Game) && !isExausted && IsReady && !IsCoolingDown)
+        if (btnCondition.Pressed() && !isExausted && IsReady && !IsCoolingDown)
         {
             AttackDurationCounter = AttackDuration;
             IsActive = true;

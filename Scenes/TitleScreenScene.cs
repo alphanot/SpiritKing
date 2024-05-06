@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using SpiritKing.Components;
+using SpiritKing.Components.Nodes;
 using SpiritKing.Controllers;
 using System;
 using System.Diagnostics;
@@ -20,7 +20,6 @@ public class TitleScreenScene : Scene
 
     public TitleScreenScene(Game game) : base(game)
     {
-        InputController.SetGameState(InputController.GameState.Menu);
         TitleText = new Label(game, "Posessed Will", Vector2.Zero, Color.DarkRed);
         StartBtn = new MenuButton(game, new Point(0, 0), new Point(350, 0), "Start", 0);
         SettingsBtn = new MenuButton(game, new Point(0, 0), new Point(350, 0), "Settings", 0);
@@ -71,16 +70,15 @@ public class TitleScreenScene : Scene
 
         //    });
 
-        //Nodes.Add(_bottomOfScreenParticles);
-        Nodes.Add(_menuController);
-        Nodes.Add(TitleText);
+        //AddNode(_bottomOfScreenParticles);
+        AddNode(_menuController);
+        AddNode(TitleText);
         MusicController.PlaySong(MusicController.OrganTheme, true);
 
         TitleText.Position = new Vector2((screen.Width - TitleText.STRING_SIZE.X) / 2, (screen.Height - TitleText.STRING_SIZE.Y) / 8);
         StartBtn.Position = new Point((screen.Width - StartBtn.Size.X) / 2, 2 * (screen.Height - StartBtn.Size.Y) / 5);
         SettingsBtn.Position = new Point((screen.Width - SettingsBtn.Size.X) / 2, 3 * (screen.Height - SettingsBtn.Size.Y) / 5);
         ExitBtn.Position = new Point((screen.Width - ExitBtn.Size.X) / 2, 4 * (screen.Height - ExitBtn.Size.Y) / 5);
-        InputController.IsReady = true;
     }
 
     public override void Update(GameTime gameTime)
@@ -98,7 +96,6 @@ public class TitleScreenScene : Scene
 
     private void StartClicked()
     {
-        InputController.IsReady = false;
         SceneSwitched?.Invoke(new GameScene(Game));
     }
 

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using SpiritKing.Components;
 using System;
 using System.Collections.Generic;
 using Apos.Input;
@@ -8,6 +7,7 @@ using Track = Apos.Input.Track;
 using Microsoft.Xna.Framework.Input;
 using System.Diagnostics;
 using SpiritKing.Controllers;
+using SpiritKing.Components.Nodes;
 
 namespace SpiritKing.Scenes;
 public class TestScene : Scene

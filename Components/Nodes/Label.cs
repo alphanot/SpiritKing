@@ -1,10 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SpiritKing.Components.Interfaces;
+using System.Collections.Generic;
 
-namespace SpiritKing.Components;
+namespace SpiritKing.Components.Nodes;
 
-internal class Label : INode
+internal class Label : Interfaces.IDrawable
 {
     public int DrawOrder => 1;
 
@@ -19,6 +20,11 @@ internal class Label : INode
     private readonly Texture2D _t2d;
 
     public Vector2 STRING_SIZE { get; private set; }
+
+    public bool Visible => true;
+
+    public List<INode> Children { get; set; }
+
 
     public Label(Game game, string text, Vector2 position, Color color)
     {
@@ -44,7 +50,4 @@ internal class Label : INode
     {
         spriteBatch.DrawString(_font, Text, Position, Color);
     }
-
-    public void Update(GameTime gameTime)
-    { }
 }

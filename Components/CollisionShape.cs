@@ -8,30 +8,15 @@ public class CollisionShape
 {
     public RectangleF Shape { get; set; }
 
-    public Color ColliderDebugColor { get; set; } = Color.MediumVioletRed;
-
-    public bool DebugOn;
-
-    private readonly bool _allowDraw = false;
-
-    private GraphicsDevice _device;
-
     public Texture2D _debugTexture;
 
-    public CollisionShape(RectangleF rect, bool allowDraw = false, GraphicsDevice graphicsDevice = null)
+    public CollisionShape(RectangleF rect)
     {
-        _device = graphicsDevice;
         Shape = rect;
-        DebugOn = allowDraw;
-        if (graphicsDevice != null)
-        {
-            _debugTexture = new Texture2D(graphicsDevice, 1, 1);
-            _debugTexture.SetData(new[] { Color.OrangeRed });
-        }
     }
 
-    public CollisionShape(float x, float y, float width, float height, bool allowDraw = false, GraphicsDevice graphicsDevice = null)
-        : this(new RectangleF(x, y, width, height), allowDraw, graphicsDevice) { }
+    public CollisionShape(float x, float y, float width, float height)
+        : this(new RectangleF(x, y, width, height)) { }
 
     public bool IsColliding(CollisionShape other)
     {
@@ -54,14 +39,6 @@ public class CollisionShape
         return Shape.Position;
     }
 
-    public void Draw(SpriteBatch spriteBatch)
-    {
-        if (_allowDraw)
-        {
-            spriteBatch.Draw(_debugTexture, new Vector2(Shape.X, Shape.Y), Color.White);
-        }
-    }
-
     public void Dispose()
     {
         if (_debugTexture != null)
@@ -69,16 +46,11 @@ public class CollisionShape
             _debugTexture.Dispose();
             _debugTexture = null;
         }
-        if (_device != null)
-        {
-            _device.Dispose();
-            _device = null;
-        }
     }
 
     #region Collision
 
-    public bool IsCollidingLeft(CollisionShape _otherCollider)
+    public bool IsCollidingRight(CollisionShape _otherCollider)
     {
         return this.Shape.Right > _otherCollider.Shape.Left &&
           this.Shape.Left < _otherCollider.Shape.Left &&
@@ -86,7 +58,7 @@ public class CollisionShape
           this.Shape.Top < _otherCollider.Shape.Bottom;
     }
 
-    public bool IsCollidingRight(CollisionShape _otherCollider)
+    public bool IsCollidingLeft(CollisionShape _otherCollider)
     {
         return this.Shape.Left < _otherCollider.Shape.Right &&
           this.Shape.Right > _otherCollider.Shape.Right &&
@@ -94,7 +66,7 @@ public class CollisionShape
           this.Shape.Top < _otherCollider.Shape.Bottom;
     }
 
-    public bool IsCollidingTop(CollisionShape _otherCollider)
+    public bool IsCollidingBottom(CollisionShape _otherCollider)
     {
         return this.Shape.Bottom > _otherCollider.Shape.Top &&
           this.Shape.Top < _otherCollider.Shape.Top &&
@@ -102,7 +74,7 @@ public class CollisionShape
           this.Shape.Left < _otherCollider.Shape.Right;
     }
 
-    public bool IsCollidingBottom(CollisionShape _otherCollider)
+    public bool IsCollidingTop(CollisionShape _otherCollider)
     {
         return this.Shape.Top < _otherCollider.Shape.Bottom &&
           this.Shape.Bottom > _otherCollider.Shape.Bottom &&

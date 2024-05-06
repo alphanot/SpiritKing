@@ -8,12 +8,15 @@ using SpiritKing.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
-namespace SpiritKing.Components;
+namespace SpiritKing.Components.Nodes;
 
-public class Scene : INode
+public class Scene : Interfaces.IDrawable, Interfaces.IUpdateable
 {
-    public List<INode> Nodes { get; private set; } = new List<INode>();
+    public List<Interfaces.IDrawable> DrawableNodes = new();
+    public List<Interfaces.IUpdateable> UpdateableNodes = new();
+
     public string Name { get; internal set; }
 
     public MusicController MusicController { get; private set; }
@@ -27,6 +30,15 @@ public class Scene : INode
     public virtual Game Game { get; set; }
 
     public Color BackgroundColor { get; set; }
+
+    public bool Enabled => true;
+
+    public int UpdateOrder => 1;
+
+    public bool Visible => true;
+
+    public List<INode> Children { get; set; }
+
     public Texture2D _logo;
 
     public Scene(Game game)
@@ -40,9 +52,9 @@ public class Scene : INode
 
     public virtual void Update(GameTime gameTime)
     {
-        for (var i = Nodes.Count - 1; i >= 0; i--)
+        foreach (var node in UpdateableNodes)
         {
-            Nodes[i].Update(gameTime);
+            node.Update(gameTime);
         }
     }
 
@@ -52,21 +64,33 @@ public class Scene : INode
         var transformMatrix = Camera.GetViewMatrix();
         spriteBatch.Begin(transformMatrix: transformMatrix);
 
-        foreach (var node in Nodes)
+        foreach (var node in DrawableNodes)
         {
             node.Draw(gameTime, spriteBatch);
         }
         spriteBatch.End();
     }
 
+    public void AddNode(INode node)
+    {
+        if (node is Interfaces.IDrawable)
+        {
+            DrawableNodes.Add(node as Interfaces.IDrawable);
+        }
+        if (node is Interfaces.IUpdateable)
+        {
+            UpdateableNodes.Add(node as Interfaces.IUpdateable);
+        }
+    }
     public virtual void SortNodes()
     {
-        Nodes.Sort((a, b) => a.DrawOrder.CompareTo(b.DrawOrder));
+        DrawableNodes.Sort((a, b) => a.DrawOrder.CompareTo(b.DrawOrder));
+        UpdateableNodes.Sort((a, b) => a.UpdateOrder.CompareTo(b.UpdateOrder));
     }
 
     public virtual void Dispose()
     {
-        foreach (var node in Nodes)
+        foreach (var node in DrawableNodes)
         {
             node.Dispose();
             Debug.Print("Scene.Dispose() Foreach(" + node.ToString() + ")");

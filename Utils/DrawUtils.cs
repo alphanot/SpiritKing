@@ -2,9 +2,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace SpiritKing.Components;
+namespace SpiritKing.DrawUtils;
 
-public static class Utils
+public static class DrawUtils
 {
     private static Texture2D _texture;
 
@@ -23,7 +23,7 @@ public static class Utils
     {
         var distance = Vector2.Distance(point1, point2);
         var angle = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
-        DrawLine(spriteBatch, point1, distance, angle, color, thickness);
+        spriteBatch.DrawLine(point1, distance, angle, color, thickness);
     }
 
     public static void DrawLine(this SpriteBatch spriteBatch, Vector2 point, float length, float angle, Color color, float thickness = 1f)

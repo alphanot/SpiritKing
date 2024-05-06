@@ -3,10 +3,11 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using SpiritKing.Components.Interfaces;
 using SpiritKing.Components.Posessables;
+using System.Collections.Generic;
 
-namespace SpiritKing.Components;
+namespace SpiritKing.Components.Nodes;
 
-public class EnemyHealthBar : INode
+public class EnemyHealthBar : Interfaces.IDrawable
 {
     public int DrawOrder => 1;
 
@@ -18,6 +19,11 @@ public class EnemyHealthBar : INode
     private readonly Texture2D _healthSprite;
     private RectangleF _healthRect;
     public Vector2 Position { get; set; } = Vector2.Zero;
+
+    public bool Visible => true;
+
+    public List<INode> Children { get; set; }
+
     private Color _healthColor = Color.Red;
 
     public EnemyHealthBar(Game game, float currentHealth, float maxHealth, int maxHealthBarWidth)
@@ -42,14 +48,11 @@ public class EnemyHealthBar : INode
         spriteBatch.Draw(_healthSprite, Position, (Rectangle)_healthRect, _healthColor);
     }
 
-    public void Update(GameTime gameTime)
-    { }
-
     public void SetCurrentHealth(float currentHealth)
     {
         _currentHealth = currentHealth;
         _healthRect.Width = _currentHealth / _MAX_HEALTH * _MAX_HEALTH_BAR_WIDTH;
-        if (_currentHealth < (_MAX_HEALTH / 2))
+        if (_currentHealth < _MAX_HEALTH / 2)
         {
             _healthColor = Color.Yellow;
         }

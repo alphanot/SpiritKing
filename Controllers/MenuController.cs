@@ -2,18 +2,29 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SpiritKing.Components;
 using SpiritKing.Components.Interfaces;
+using SpiritKing.Components.Nodes;
+using SpiritKing.Controllers.InputControllers;
+using System.Collections.Generic;
 
 namespace SpiritKing.Controllers;
 
-public class MenuController : INode
+public class MenuController : Components.Interfaces.IUpdateable, Components.Interfaces.IDrawable
 {
     public MenuButton[] Buttons;
     private int currentBtnIndex;
 
     public int DrawOrder => 1;
 
+    public bool Enabled => true;
+
+    public int UpdateOrder => 1;
+
+    public bool Visible => true;
+
+    public List<INode> Children { get; set; }
+
+    private MenuInputController _menuInputController = new();
     public MenuController(MenuButton[] buttons)
     {
         Buttons = buttons;
@@ -22,8 +33,7 @@ public class MenuController : INode
 
     public void Update(GameTime gameTime)
     {
-        InputController.GetState();
-        if (InputController.IsFirstPress(Microsoft.Xna.Framework.Input.Buttons.DPadDown, InputController.GameState.Menu))
+        if (_menuInputController.Down.Pressed())
         {
             HighlightChanged(false);
             currentBtnIndex++;
@@ -33,7 +43,7 @@ public class MenuController : INode
             }
             HighlightChanged(true);
         }
-        else if (InputController.IsFirstPress(Microsoft.Xna.Framework.Input.Buttons.DPadUp, InputController.GameState.Menu))
+        else if (_menuInputController.Up.Pressed())
         {
             HighlightChanged(false);
             currentBtnIndex--;
@@ -44,7 +54,7 @@ public class MenuController : INode
             HighlightChanged(true);
         }
 
-        if (InputController.IsFirstPress(Microsoft.Xna.Framework.Input.Buttons.A, InputController.GameState.Menu))
+        if (_menuInputController.Select.Pressed())
         {
             Buttons[currentBtnIndex].Action?.Invoke();
         }

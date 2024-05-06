@@ -1,10 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using SpiritKing.Components.Interfaces;
+using System.Collections.Generic;
 
 namespace SpiritKing.Components;
 
-public class OutlineRectF
+public class OutlineRectF : Interfaces.IDrawable
 {
     public float X { get; set; }
     public float Y { get; set; }
@@ -46,6 +48,12 @@ public class OutlineRectF
         }
     }
 
+    public int DrawOrder => 1;
+
+    public bool Visible => true;
+
+    public List<INode> Children { get; set; }
+
     public OutlineRectF(Texture2D t2d, float x, float y, float width, float height, int thickness)
     {
         sprite = t2d;
@@ -61,7 +69,7 @@ public class OutlineRectF
         _bottom = new RectangleF(X, Y + Height - Thickness, Width, Thickness);
     }
 
-    public void Draw(SpriteBatch spriteBatch)
+    public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
     {
         spriteBatch.Draw(sprite, Position, _left.ToRectangle(), Color.White);
         spriteBatch.Draw(sprite, Position, _top.ToRectangle(), Color.White);

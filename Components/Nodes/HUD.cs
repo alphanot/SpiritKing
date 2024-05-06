@@ -3,13 +3,22 @@ using Microsoft.Xna.Framework.Graphics;
 using SpiritKing.Components.Interfaces;
 using SpiritKing.Components.Posessables;
 using System;
+using System.Collections.Generic;
 using RectangleF = MonoGame.Extended.RectangleF;
 
-namespace SpiritKing.Components;
+namespace SpiritKing.Components.Nodes;
 
-public class HUD : INode
+public class HUD : Interfaces.IDrawable, Interfaces.IUpdateable
 {
     public int DrawOrder => 100;
+
+    public bool Enabled => true;
+
+    public int UpdateOrder => 1;
+
+    public bool Visible => true;
+
+    public List<INode> Children { get; set; }
 
     private float _MAX_HEALTH = 0;
     private float _MAX_STAMINA = 0;

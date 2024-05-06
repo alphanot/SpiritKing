@@ -2,14 +2,16 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SpiritKing.Components.Interfaces;
+using SpiritKing.Components.Nodes;
 using SpiritKing.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace SpiritKing.Components.Posessables;
 
-public class PosessablesHandler : INode
+public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
 {
     public int DrawOrder => 1;
 
@@ -19,6 +21,14 @@ public class PosessablesHandler : INode
 
     public IPosessable HighlightedPosessable { get; set; }
 
+    public bool Enabled => true;
+
+    public int UpdateOrder => 1;
+
+    public bool Visible => true;
+
+    public List<INode> Children { get; set; }
+
     public static event Action<IPosessable> PosessableSwitched;
 
     public PosessablesHandler()
@@ -27,11 +37,11 @@ public class PosessablesHandler : INode
         Posessables = new List<IPosessable>();
     }
 
-    public void InitializePosessables(Game game)
+    public void InitializePosessables(Game game, GameWorldHandler gameWorld)
     {
-        Posessables.Add(new Goblin(game, new Vector2(0, 0)));
-        Posessables.Add(new Gargoyle(game, new Vector2(1000, 0)));
-        Posessables.Add(new Hound(game, new Vector2(400, 0)));
+        Posessables.Add(new Goblin(game, new Vector2(0, 0), gameWorld));
+        // Posessables.Add(new Gargoyle(game, new Vector2(1000, 0)));
+        // Posessables.Add(new Hound(game, new Vector2(400, 0)));
     }
 
     public IPosessable InitializePlayer()
@@ -61,7 +71,7 @@ public class PosessablesHandler : INode
     {
         var seconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (InputController.GetRightStickPastDeadzone(InputController.GameState.Game))
+        if (Player.InputController.IsRightStickMoving())
         {
             HighlightPosessable();
         }
@@ -71,7 +81,7 @@ public class PosessablesHandler : INode
             HighlightedPosessable = null;
         }
 
-        if (InputController.IsPressed(Buttons.RightShoulder, InputController.GameState.Game) && Player.PosessIsReady() && HighlightedPosessable.CanBePosessed() && HighlightedPosessable != null)
+        if (Player.InputController.Posess.Pressed() && Player.PosessIsReady() && HighlightedPosessable != null && HighlightedPosessable.CanBePosessed())
         {
             Player.Unposess();
             Player = HighlightedPosessable;
@@ -94,7 +104,7 @@ public class PosessablesHandler : INode
     private void HandleEnemyAI(IPosessable p, float seconds)
     {
         // Check for aggro
-        if (p.EnemyAIFieldOfView.Shape.Intersects(Player.Collider.Shape))
+        if (p.EnemyAIFieldOfView.Shape.Intersects(Player.CollisionShape.Shape))
         {
             if (Player.Position.X < p.Position.X)
             {
@@ -109,7 +119,7 @@ public class PosessablesHandler : INode
             {
                 // p.Position.X - p.NormalAttack.AttackCollisionShape.Shape.Width
             }
-            if (Math.Abs(Player.Position.X) - Math.Abs(p.Position.X - p.NormalAttack.AttackCollisionShape.Shape.Width) < 0)
+            if (Math.Abs(Player.Position.X) - Math.Abs(p.Position.X - p.NormalAttack.CollisionShape.Shape.Width) < 0)
             {
                 // p.NormalAttack.Update(seconds, p => Debug.Print("hello"), p.PlayerState.IsExhausted);
                 Debug.Print("hello");
@@ -127,7 +137,7 @@ public class PosessablesHandler : INode
         foreach (var p in Posessables)
         {
             p.IsHighlighted = false;
-            if (Player.PosessRay.Intersects(p.PosessableCollider.Shape) && !p.Collider.Shape.Contains(Player.PosessRay.Position))
+            if (Player.PosessRay.Intersects(p.PosessableCollider.Shape) && !p.CollisionShape.Shape.Contains(Player.PosessRay.Position))
             {
                 if (closestPosessable == null)
                 {

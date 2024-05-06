@@ -3,15 +3,21 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using SpiritKing.Components.Interfaces;
 using System;
+using System.Collections.Generic;
 
-namespace SpiritKing.Components;
+namespace SpiritKing.Components.Nodes;
 
-public class Platform : INode
+public class Platform : Interfaces.IDrawable
 {
     public int DrawOrder { get; } = 1;
     public Game Game { get; set; }
     public Vector2 Position { get; set; }
-    public CollisionShape Collider { get; set; }
+    public CollisionShape CollisionShape { get; set; }
+
+    public bool Visible => true;
+
+    public bool IsActive { get; set; } = true;
+    public List<INode> Children { get; set; }
 
     public static event Action<CollisionShape> GetCollidable;
 
@@ -28,17 +34,12 @@ public class Platform : INode
         _tempSprite = new Texture2D(game.GraphicsDevice, 1, 1);
         _tempSprite.SetData(new[] { Color.White });
         Position = position;
-        Collider = new CollisionShape((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
+        CollisionShape = new CollisionShape((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
     }
 
     public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
     {
-        spriteBatch.Draw(_tempSprite, Position, Collider.Shape.ToRectangle(), Color.DarkSlateGray);
-    }
-
-    public void Update(GameTime gameTime)
-    {
-        GetCollidable?.Invoke(Collider);
+        spriteBatch.Draw(_tempSprite, Position, CollisionShape.Shape.ToRectangle(), Color.DarkSlateGray);
     }
 
     public void Dispose()
