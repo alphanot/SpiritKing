@@ -42,16 +42,16 @@ public class HUD : Interfaces.IDrawable, Interfaces.IUpdateable
     private bool _healthFlashEnabled;
     private readonly SpriteFont _font;
 
-    public HUD(Game game, float maxHealth, float maxStamina, float currentHealth, float currentStamina, bool isExhausted)
+    public HUD(Game game, Posessable posessable)
     {
         _font = game.Content.Load<SpriteFont>("Fonts/HUDText");
-        SetHUD(maxHealth, maxStamina, currentHealth, currentStamina, isExhausted);
+        SetHUD(posessable);
         _healthSprite = new Texture2D(game.GraphicsDevice, 1, 1);
         _healthSprite.SetData(new[] { Color.White });
 
         _staminaSprite = new Texture2D(game.GraphicsDevice, 1, 1);
         _staminaSprite.SetData(new[] { Color.White });
-        _staminaColor = isExhausted ? Color.Yellow : Color.Green;
+        _staminaColor = posessable.PlayerState.IsExhausted ? Color.Yellow : Color.Green;
 
         _posessTimerSprite = new Texture2D(game.GraphicsDevice, 1, 1);
         _posessTimerSprite.SetData(new[] { Color.White });
@@ -63,6 +63,8 @@ public class HUD : Interfaces.IDrawable, Interfaces.IUpdateable
         Posessable.UpdateHealthBar += SetCurrentHealth;
         Posessable.UpdateStaminaBar += SetCurrentStamina;
         Posessable.UpdatePosessCanActivate += SetPosessCanActivate;
+        PosessablesHandler.PosessableSwitched += SetHUD;
+
         _healthFlashTimer = new GameTime();
     }
 
@@ -119,17 +121,17 @@ public class HUD : Interfaces.IDrawable, Interfaces.IUpdateable
         _staminaColor = isExhausted ? Color.Yellow : Color.Green;
     }
 
-    public void SetHUD(float maxHealth, float maxStamina, float currentHealth, float currentStamina, bool isExhausted)
+    public void SetHUD(Posessable posessable)
     {
-        _MAX_HEALTH = maxHealth;
-        _MAX_STAMINA = maxStamina;
-        _currentHealth = currentHealth;
-        _currentStamina = currentStamina;
+        _MAX_HEALTH = posessable.Stats.MaxHealth;
+        _MAX_STAMINA = posessable.Stats.MaxStamina;
+        _currentHealth = posessable.Stats.Health;
+        _currentStamina = posessable.Stats.Stamina;
         _healthRect = new RectangleF(0, 0, _MAX_HEALTH, 20);
         _staminaRect = new RectangleF(0, 0, _MAX_STAMINA, 20);
         _posessCanActivateRect = new RectangleF(0, 0, 20, 20);
-        SetCurrentHealth(currentHealth);
-        SetCurrentStamina(currentStamina, isExhausted);
+        SetCurrentHealth(posessable.Stats.Health);
+        SetCurrentStamina(posessable.Stats.Stamina, posessable.PlayerState.IsExhausted);
     }
 
     public void SetPosition(Vector2 position)

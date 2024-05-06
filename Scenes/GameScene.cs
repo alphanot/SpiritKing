@@ -34,20 +34,14 @@ public class GameScene : Scene
         PosessableHandler.InitializePosessables(game, gameWorld);
         PosessableHandler.InitializePlayer();
         Camera.LookAt(PosessableHandler.Player.Position);
-        _hud = new HUD(game, PosessableHandler.Player.Stats.MaxHealth, PosessableHandler.Player.Stats.MaxStamina, PosessableHandler.Player.Stats.Health, PosessableHandler.Player.Stats.Stamina, PosessableHandler.Player.PlayerState.IsExhausted);
+        _hud = new HUD(game, PosessableHandler.Player);
         _hud.SetPosition(Camera.Position);
 
         AddNode(_hud);
         AddNode(gameWorld);
         SortNodes();
-        PosessablesHandler.PosessableSwitched += SwitchPosessable;
         ControllerUtils.BumpController(0);
         MusicController.PlaySong(MusicController.Ambience, true);
-    }
-
-    private void SwitchPosessable(Posessable posessable)
-    {
-        _hud.SetHUD(PosessableHandler.Player.Stats.MaxHealth, PosessableHandler.Player.Stats.MaxStamina, PosessableHandler.Player.Stats.Health, PosessableHandler.Player.Stats.Stamina, PosessableHandler.Player.PlayerState.IsExhausted);
     }
 
     public override void Update(GameTime gameTime)

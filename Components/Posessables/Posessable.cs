@@ -6,21 +6,19 @@ using MonoGame.Extended.Particles.Modifiers;
 using MonoGame.Extended.Particles.Modifiers.Containers;
 using MonoGame.Extended.Particles.Modifiers.Interpolators;
 using MonoGame.Extended.Particles.Profiles;
-using SpiritKing.Components.Interfaces;
 using SpiritKing.Components.Nodes;
 using SpiritKing.Components.States;
 using SpiritKing.Controllers;
 using SpiritKing.Controllers.InputControllers;
 using SpiritKing.Structs;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace SpiritKing.Components.Posessables;
 
 public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
 {
-    public int DrawOrder => 1;
+    public int DrawOrder { get; set; } = 1;
     public bool IsHighlighted { get; set; } = false;
     public Stats Stats { get; set; }
     public virtual PlayerState PlayerState { get; set; }
@@ -39,16 +37,9 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
     public virtual CollisionShape CollisionShape { get; set; }
     public virtual CollisionShape EnemyAIFieldOfView { get; set; }
     public CollisionShape PosessableCollider { get; set; }
-    public Game Game { get; private set; }
     public Texture2D Sprite { get; set; }
 
     public static event Action<Posessable> PosessableDied;
-
-    public static event Action<Posessable> AttemptPossess;
-
-    public static event Action<Posessable> PosessableSwitched;
-
-    public static event Action<Posessable> GetPosessableCollidable;
 
     public static event Action<Attack> PlayerAttacked;
 
@@ -60,20 +51,17 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
 
     public const float POSESS_TIMER_WAIT_TIME = 3f;
 
-    public float PosessTimerValue { get; set; }
     public bool IsPosessed { get; set; } = false;
     public Line PosessRay { get; set; }
 
     public virtual Attack NormalAttack { get; set; }
     public PosessableInputController InputController { get; set; }
 
-    private Vector2 NextPosition { get; set; }
+    public bool Enabled { get; set; } = true;
 
-    public bool Enabled => true;
+    public int UpdateOrder { get; set; } = 1;
 
-    public int UpdateOrder => 1;
-
-    public bool Visible => true;
+    public bool Visible { get; set; } = true;
 
     private ParticleController _particleController;
 
@@ -97,7 +85,6 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         InputController = new PosessableInputController();
         IsPosessed = isPosessed;
         Stats = stats;
-        Game = game;
         Sprite = new Texture2D(game.GraphicsDevice, 1, 1);
         Sprite.SetData(new[] { Color.White });
         _outlineRect = new OutlineRectF(Sprite, Position.X, Position.Y, Stats.Width, Stats.Height, 4);
@@ -178,21 +165,27 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
     {
         _particleController.Dispose();
         _particleController = null;
+
         PlayerAttacked -= Signal_PlayerAttacked;
 
         IsPosessed = false;
+
         Stats = null;
-        Game = null;
+
         Sprite.Dispose();
         Sprite = null;
+
         _outlineRect.Dispose();
         _outlineRect = null;
 
         PlayerState = null;
+
         Position = Vector2.Zero;
-        Position = Vector2.Zero;
+
         Velocity = Vector2.Zero;
+
         CollisionShape.Dispose();
+
         CollisionShape = null;
 
         EnemyAIFieldOfView.Dispose();
@@ -202,7 +195,9 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         PosessableCollider = null;
 
         PosessRay = null;
+
         _exhaustionTimer = null;
+
         _posessCooldownTimer = null;
 
         _enemyHealthBar.Dispose();
@@ -212,7 +207,10 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
     public void Update(GameTime gameTime)
     {
         var seconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        HandleInput(seconds);
+        if (IsPosessed)
+        {
+            HandleInput(seconds);
+        }
         HandleState(seconds);
         HandleStamina(seconds);
         UpdatePositionFromVelocity(seconds);
@@ -223,110 +221,9 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         {
             _posessCooldownTimer.ElapsedGameTime += gameTime.ElapsedGameTime;
             UpdatePosessCanActivate?.Invoke(_posessCooldownTimer.ElapsedGameTime.TotalSeconds > POSESS_TIMER_WAIT_TIME);
-            HandleInput(seconds);
-        }
-        else
-        {
-            GetPosessableCollidable?.Invoke(this);
         }
 
         HandleParticles(gameTime);
-    }
-
-    private void ResolveCollisions()
-    {
-        PlayerState.CollidingY = PlayerState.CollidingYState.None;
-        PlayerState.CollidingX = PlayerState.CollidingXState.None;
-        foreach (var platform in _worldHandler.Platforms)
-        {
-            RectangleF intersectionArea = CollisionShape.Shape.Intersection(platform.CollisionShape.Shape);
-            if (intersectionArea.IsEmpty)
-            {
-                continue;
-            }
-
-            if (intersectionArea.Height > intersectionArea.Width)
-            {
-                if (CollisionShape.IsCollidingLeft(platform.CollisionShape))
-                {
-                    velocity.X = 0;
-                    position.X = platform.CollisionShape.Shape.Right;
-                    PlayerState.CollidingX = PlayerState.CollidingXState.Left;
-                }
-                else if (CollisionShape.IsCollidingRight(platform.CollisionShape))
-                {
-                    velocity.X = 0;
-                    position.X = platform.CollisionShape.Shape.Left - CollisionShape.Shape.Width;
-                    PlayerState.CollidingX = PlayerState.CollidingXState.Right;
-                }
-            }
-            else
-            {
-                if (CollisionShape.IsCollidingBottom(platform.CollisionShape))
-                {
-                    velocity.Y = 0;
-                    position.Y = platform.CollisionShape.Shape.Top - CollisionShape.Shape.Height;
-                    PlayerState.CollidingY = PlayerState.CollidingYState.Ground;
-                }
-                else if (CollisionShape.IsCollidingTop(platform.CollisionShape))
-                {
-                    velocity.Y = 0;
-                    position.Y = platform.CollisionShape.Shape.Bottom;
-                    PlayerState.CollidingY = PlayerState.CollidingYState.Ceiling;
-                }
-            }
-        }
-    }
-
-    public void HandleStamina(float seconds)
-    {
-        // Handle player exhaustion
-        if (Stats.Stamina < 0)
-        {
-            PlayerState.IsExhausted = true;
-        }
-        if (PlayerState.IsExhausted)
-        {
-            _exhaustionTimer.ElapsedGameTime += TimeSpan.FromSeconds(seconds);
-        }
-        if (_exhaustionTimer.ElapsedGameTime.TotalSeconds > 2.1)
-        {
-            PlayerState.IsExhausted = false;
-            _exhaustionTimer.ElapsedGameTime = TimeSpan.Zero;
-        }
-
-        // handle stamina drain
-        if (PlayerState.IsRunning && !PlayerState.IsExhausted)
-        {
-            Stats.Stamina -= Stats.StaminaRegenSpeed * seconds;
-        }
-        else
-        {
-            Stats.Stamina += Stats.StaminaRegenSpeed * seconds;
-            if (Stats.Stamina > Stats.MaxStamina)
-            {
-                Stats.Stamina = Stats.MaxStamina;
-            }
-        }
-        if (IsPosessed)
-        {
-            UpdateStaminaBar?.Invoke(Stats.Stamina, PlayerState.IsExhausted);
-        }
-    }
-
-    public bool PosessIsReady()
-    {
-        return _posessCooldownTimer.ElapsedGameTime.TotalSeconds > POSESS_TIMER_WAIT_TIME;
-    }
-
-    public bool CanBePosessed()
-    {
-        return Stats.Health < (Stats.MaxHealth / 2);
-    }
-
-    private static float GetGravity(float seconds)
-    {
-        return Globals.GRAVITY * seconds;
     }
 
     private void HandleInput(float seconds)
@@ -409,7 +306,7 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         }
         else
         {
-            velocity.Y += GetGravity(seconds);
+            velocity.Y += Globals.GRAVITY * seconds;
         }
 
         // Move player along X axis
@@ -450,17 +347,39 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         }
     }
 
-    private void HandleParticles(GameTime gameTime)
+    public void HandleStamina(float seconds)
     {
-        _particleController.Update(gameTime);
-
-        if (PlayerState.CollidingY == PlayerState.CollidingYState.Ground && Math.Abs(Velocity.X) > 20)
+        // Handle player exhaustion
+        if (Stats.Stamina < 0)
         {
-            _particleController.SetQuantity(0, 2);
+            PlayerState.IsExhausted = true;
+        }
+        if (PlayerState.IsExhausted)
+        {
+            _exhaustionTimer.ElapsedGameTime += TimeSpan.FromSeconds(seconds);
+        }
+        if (_exhaustionTimer.ElapsedGameTime.TotalSeconds > 2.1)
+        {
+            PlayerState.IsExhausted = false;
+            _exhaustionTimer.ElapsedGameTime = TimeSpan.Zero;
+        }
+
+        // handle stamina drain
+        if (PlayerState.IsRunning && !PlayerState.IsExhausted)
+        {
+            Stats.Stamina -= Stats.StaminaRegenSpeed * seconds;
         }
         else
         {
-            _particleController.SetQuantity(0, 0);
+            Stats.Stamina += Stats.StaminaRegenSpeed * seconds;
+            if (Stats.Stamina > Stats.MaxStamina)
+            {
+                Stats.Stamina = Stats.MaxStamina;
+            }
+        }
+        if (IsPosessed)
+        {
+            UpdateStaminaBar?.Invoke(Stats.Stamina, PlayerState.IsExhausted);
         }
     }
 
@@ -490,6 +409,94 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         }
         // highlight
         _outlineRect.Position = _position;
+    }
+
+    private void ResolveCollisions()
+    {
+        PlayerState.CollidingY = PlayerState.CollidingYState.None;
+        PlayerState.CollidingX = PlayerState.CollidingXState.None;
+        foreach (var platform in _worldHandler.Platforms)
+        {
+            RectangleF intersectionArea = CollisionShape.Shape.Intersection(platform.CollisionShape.Shape);
+            if (intersectionArea.IsEmpty)
+            {
+                continue;
+            }
+
+            if (intersectionArea.Height > intersectionArea.Width)
+            {
+                if (CollisionShape.IsCollidingLeft(platform.CollisionShape))
+                {
+                    velocity.X = 0;
+                    position.X = platform.CollisionShape.Shape.Right;
+                    PlayerState.CollidingX = PlayerState.CollidingXState.Left;
+                }
+                else if (CollisionShape.IsCollidingRight(platform.CollisionShape))
+                {
+                    velocity.X = 0;
+                    position.X = platform.CollisionShape.Shape.Left - CollisionShape.Shape.Width;
+                    PlayerState.CollidingX = PlayerState.CollidingXState.Right;
+                }
+            }
+            else
+            {
+                if (CollisionShape.IsCollidingBottom(platform.CollisionShape))
+                {
+                    velocity.Y = 0;
+                    position.Y = platform.CollisionShape.Shape.Top - CollisionShape.Shape.Height;
+                    PlayerState.CollidingY = PlayerState.CollidingYState.Ground;
+                }
+                else if (CollisionShape.IsCollidingTop(platform.CollisionShape))
+                {
+                    velocity.Y = 0;
+                    position.Y = platform.CollisionShape.Shape.Bottom;
+                    PlayerState.CollidingY = PlayerState.CollidingYState.Ceiling;
+                }
+            }
+        }
+    }
+
+    private void HandleParticles(GameTime gameTime)
+    {
+        _particleController.Update(gameTime);
+
+        if (PlayerState.CollidingY == PlayerState.CollidingYState.Ground && Math.Abs(Velocity.X) > 20)
+        {
+            _particleController.SetQuantity(0, 2);
+        }
+        else
+        {
+            _particleController.SetQuantity(0, 0);
+        }
+    }
+
+    public bool PosessIsReady()
+    {
+        return _posessCooldownTimer.ElapsedGameTime.TotalSeconds > POSESS_TIMER_WAIT_TIME;
+    }
+
+    public bool CanBePosessed()
+    {
+        return Stats.Health < (Stats.MaxHealth / 2);
+    }
+
+    public void Posess()
+    {
+        IsHighlighted = false;
+        IsPosessed = true;
+        PosessRay.Target = PosessRay.Position;
+        Velocity = new Vector2(0, Velocity.Y);
+        PlayerState.MovementX = PlayerState.MovementStateX.Idle;
+        _posessCooldownTimer.ElapsedGameTime = TimeSpan.Zero;
+    }
+
+    public void Unposess()
+    {
+        IsPosessed = false;
+        PosessRay.Target = this.PosessRay.Position;
+        Velocity = new Vector2(0, this.Velocity.Y);
+        PlayerState.IsRunning = false;
+        PlayerState.MovementX = PlayerState.MovementStateX.Idle;
     }
 
     private void ReceiveDamage(int damage, float knockbackDirection, float knockbackStrenght)
@@ -527,23 +534,5 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
             var knockbackDirection = attackPosition.X > Position.X ? -1 : 1;
             ReceiveDamage(attack.BaseDamage, knockbackDirection, attack.KnockBack);
         }
-    }
-
-    public void Posess()
-    {
-        IsHighlighted = false;
-        IsPosessed = true;
-        PosessRay.Target = PosessRay.Position;
-        Velocity = new Vector2(0, Velocity.Y);
-        PlayerState.MovementX = PlayerState.MovementStateX.Idle;
-        _posessCooldownTimer.ElapsedGameTime = TimeSpan.Zero;
-    }
-
-    public void Unposess()
-    {
-        IsPosessed = false;
-        PosessRay.Target = this.PosessRay.Position;
-        Velocity = new Vector2(0, this.Velocity.Y);
-        PlayerState.MovementX = PlayerState.MovementStateX.Idle;
     }
 }

@@ -34,8 +34,8 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
     public void InitializePosessables(Game game, GameWorldHandler gameWorld)
     {
         Posessables.Add(new Goblin(game, new Vector2(0, 0), gameWorld));
-        // Posessables.Add(new Gargoyle(game, new Vector2(1000, 0)));
-        // Posessables.Add(new Hound(game, new Vector2(400, 0)));
+        Posessables.Add(new Gargoyle(game, new Vector2(1000, 0), gameWorld));
+        Posessables.Add(new Hound(game, new Vector2(400, 0), gameWorld));
     }
 
     public Posessable InitializePlayer()
