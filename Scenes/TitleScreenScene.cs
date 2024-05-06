@@ -1,4 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using MonoGame.Extended;
+using MonoGame.Extended.Particles;
+using MonoGame.Extended.Particles.Modifiers;
+using MonoGame.Extended.Particles.Modifiers.Interpolators;
+using MonoGame.Extended.Particles.Profiles;
 using SpiritKing.Components.Nodes;
 using SpiritKing.Controllers;
 using System;
@@ -15,7 +20,7 @@ public class TitleScreenScene : Scene
 
     private readonly MenuController _menuController;
 
-    //ParticleController _bottomOfScreenParticles;
+    ParticleController _bottomOfScreenParticles;
     public override event Action<Scene> SceneSwitched;
 
     public TitleScreenScene(Game game) : base(game)
@@ -32,45 +37,44 @@ public class TitleScreenScene : Scene
         StartBtn.Highlighted = true;
         BackgroundColor = Color.Black;
         var screen = game.GraphicsDevice.Viewport;
-        ////_bottomOfScreenParticles = new ParticleController(game.GraphicsDevice, new Vector2(screen.Width / 2, screen.Height));
+        _bottomOfScreenParticles = new ParticleController(game.GraphicsDevice, new Vector2(screen.Width / 2, screen.Height));
 
-        //_bottomOfScreenParticles.AddEmitter(
-        //    new ParticleEmitter(_bottomOfScreenParticles.TextureRegion, 250, TimeSpan.FromSeconds(4),
-        //        Profile.Line(new Vector2(1, 0), screen.Width))
-        //    {
-        //        Parameters = new ParticleReleaseParameters
-        //        {
-        //            Speed = new Range<float>(0.1f, 50f),
-        //            Quantity = 1,
-        //            Rotation = new Range<float>(-1f, 1f),
-        //            Scale = new Range<float>(1.0f, 6f),
-        //            Color = new Range<HslColor>(HslColor.FromRgb(Color.DarkRed), HslColor.FromRgb(Color.Yellow)),
-        //        },
-        //        Modifiers =
-        //            {
-        //                new AgeModifier
-        //                {
-        //                    Interpolators =
-        //                    {
-        //                        new OpacityInterpolator
-        //                        {
-        //                            StartValue = 0.6f, EndValue = 0f
-        //                        },
-        //                        new HueInterpolator
-        //                        {
-        //                            StartValue = 30f,
-        //                            EndValue = -25f
-        //                        }
-        //                    }
-        //                },
-        //                new RotationModifier {RotationRate = -2.1f},
-        //                new LinearGravityModifier {Direction = new Vector2(- 0.2f, -1f), Strength = 9.3f},
+        _bottomOfScreenParticles.AddEmitter(
+            new ParticleEmitter(_bottomOfScreenParticles.TextureRegion, 250, TimeSpan.FromSeconds(4),
+                Profile.Line(new Vector2(1, 0), screen.Width))
+            {
+                Parameters = new ParticleReleaseParameters
+                {
+                    Speed = new Range<float>(0.1f, 50f),
+                    Quantity = 1,
+                    Rotation = new Range<float>(-1f, 1f),
+                    Scale = new Range<float>(1.0f, 6f),
+                    Color = new Range<HslColor>(HslColor.FromRgb(Color.DarkRed), HslColor.FromRgb(Color.Yellow)),
+                },
+                Modifiers =
+                    {
+                        new AgeModifier
+                        {
+                            Interpolators =
+                            {
+                                new OpacityInterpolator
+                                {
+                                    StartValue = 0.6f, EndValue = 0f
+                                },
+                                new HueInterpolator
+                                {
+                                    StartValue = 30f,
+                                    EndValue = -25f
+                                }
+                            }
+                        },
+                        new RotationModifier {RotationRate = -2.1f},
+                        new LinearGravityModifier {Direction = new Vector2(- 0.2f, -1f), Strength = 9.3f},
 
-        //            }
+                    }
+            });
 
-        //    });
-
-        //AddNode(_bottomOfScreenParticles);
+        AddNode(_bottomOfScreenParticles);
         AddNode(_menuController);
         AddNode(TitleText);
         MusicController.PlaySong(MusicController.OrganTheme, true);
@@ -89,7 +93,7 @@ public class TitleScreenScene : Scene
     public override void Dispose()
     {
         base.Dispose();
-        //_bottomOfScreenParticles.Dispose();
+        _bottomOfScreenParticles.Dispose();
         _menuController.Dispose();
         TitleText.Dispose();
     }

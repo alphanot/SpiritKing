@@ -20,8 +20,6 @@ public class MenuController : Components.Interfaces.IUpdateable, Components.Inte
 
     public bool Visible => true;
 
-    public List<INode> Children { get; set; }
-
     private readonly MenuInputController _menuInputController = new();
     public MenuController(MenuButton[] buttons)
     {

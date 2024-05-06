@@ -52,8 +52,6 @@ public class OutlineRectF : Interfaces.IDrawable
 
     public bool Visible => true;
 
-    public List<INode> Children { get; set; }
-
     public OutlineRectF(Texture2D t2d, float x, float y, float width, float height, int thickness)
     {
         sprite = t2d;

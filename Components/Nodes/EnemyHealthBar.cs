@@ -22,8 +22,6 @@ public class EnemyHealthBar : Interfaces.IDrawable
 
     public bool Visible => true;
 
-    public List<INode> Children { get; set; }
-
     private Color _healthColor = Color.Red;
 
     public EnemyHealthBar(Game game, float currentHealth, float maxHealth, int maxHealthBarWidth)

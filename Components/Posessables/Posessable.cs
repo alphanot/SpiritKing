@@ -18,7 +18,7 @@ using System.Diagnostics;
 
 namespace SpiritKing.Components.Posessables;
 
-public class Posessable : IPosessable
+public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
 {
     public int DrawOrder => 1;
     public bool IsHighlighted { get; set; } = false;
@@ -38,18 +38,17 @@ public class Posessable : IPosessable
     Vector2 velocity;
     public virtual CollisionShape CollisionShape { get; set; }
     public virtual CollisionShape EnemyAIFieldOfView { get; set; }
-    public virtual CollisionShape PosessableCollider { get; set; }
-    public virtual List<CollisionShape> Colliders { get; set; }
+    public CollisionShape PosessableCollider { get; set; }
     public Game Game { get; private set; }
     public Texture2D Sprite { get; set; }
 
     public static event Action<Posessable> PosessableDied;
 
-    public static event Action<IPosessable> AttemptPossess;
+    public static event Action<Posessable> AttemptPossess;
 
-    public static event Action<IPosessable> PosessableSwitched;
+    public static event Action<Posessable> PosessableSwitched;
 
-    public static event Action<IPosessable> GetPosessableCollidable;
+    public static event Action<Posessable> GetPosessableCollidable;
 
     public static event Action<Attack> PlayerAttacked;
 
@@ -75,15 +74,11 @@ public class Posessable : IPosessable
     public int UpdateOrder => 1;
 
     public bool Visible => true;
-    public List<INode> Children { get; set; }
 
     private ParticleController _particleController;
 
     private OutlineRectF _outlineRect;
 
-    private RectangleF _canGroundRay;
-    private RectangleF _canShiftLeftRay;
-    private RectangleF _canShiftRightRay;
     private bool jumpCanActivate = true;
 
     private GameTime _exhaustionTimer;
@@ -112,14 +107,10 @@ public class Posessable : IPosessable
         Velocity = new Vector2(0, 0);
         CollisionShape = new CollisionShape(Position.X, Position.Y, Stats.Width, Stats.Height);
 
-        Colliders = new List<CollisionShape>();
         PosessableCollider = new CollisionShape(Position.X - 100, Position.Y - 100, Stats.Width + 200, Stats.Height + 200);
         EnemyAIFieldOfView = new CollisionShape(Position.X - 400, Position.Y - 400, Stats.Width + 800, Stats.Height + 800);
 
         PlayerAttacked += Signal_PlayerAttacked;
-        _canGroundRay = new RectangleF(new Vector2(Position.X - 10, Position.Y + (Stats.Height * 0.8F)), new Vector2(Stats.Width + 20, 1));
-        _canShiftLeftRay = new RectangleF(new Vector2(Position.X + (Stats.Width * 0.8F), Position.Y - 25), new Vector2(1, Stats.Height));
-        _canShiftRightRay = new RectangleF(new Vector2(Position.X + (Stats.Width * 0.2F), Position.Y - 25), new Vector2(1, Stats.Height));
         PosessRay = new Line(new Point2(Position.X + (Stats.Width / 2), Position.Y + (Stats.Height / 2)), new Point2(400, 1));
         _exhaustionTimer = new GameTime();
         _posessCooldownTimer = new GameTime();
@@ -207,14 +198,9 @@ public class Posessable : IPosessable
         EnemyAIFieldOfView.Dispose();
         EnemyAIFieldOfView = null;
 
-        Colliders.Clear();
-        Colliders = null;
         PosessableCollider.Dispose();
         PosessableCollider = null;
 
-        _canGroundRay = RectangleF.Empty;
-        _canShiftLeftRay = RectangleF.Empty;
-        _canShiftRightRay = RectangleF.Empty;
         PosessRay = null;
         _exhaustionTimer = null;
         _posessCooldownTimer = null;
@@ -338,29 +324,6 @@ public class Posessable : IPosessable
         return Stats.Health < (Stats.MaxHealth / 2);
     }
 
-    //private void SetCollisions()
-    //{
-    //    PlayerState.CollidingY = PlayerState.CollidingYState.None;
-    //    PlayerState.CollidingX = PlayerState.CollidingXState.None;
-
-    //    if (CollisionShape.TopCollision != null && Velocity.Y < 0)
-    //    {
-    //        PlayerState.CollidingY = PlayerState.CollidingYState.Ceiling;
-    //    }
-    //    else if (CollisionShape.BottomCollision != null && Velocity.Y > 0)
-    //    {
-    //        PlayerState.CollidingY = PlayerState.CollidingYState.Ground;
-    //    }
-    //    else if (CollisionShape.RightCollision != null && Velocity.X > 0)
-    //    {
-    //        PlayerState.CollidingX = PlayerState.CollidingXState.Right;
-    //    }
-    //    else if (CollisionShape.LeftCollision != null && Velocity.X < 0)
-    //    {
-    //        PlayerState.CollidingX = PlayerState.CollidingXState.Left;
-    //    }
-    //}
-
     private static float GetGravity(float seconds)
     {
         return Globals.GRAVITY * seconds;
@@ -439,7 +402,6 @@ public class Posessable : IPosessable
 
     private void HandleState(float seconds)
     {
-        // var velocityDecay = Math.Sign(Velocity.X) * (10 * seconds);
         // Move player along Y axis
         if (PlayerState.MovementY == PlayerState.MovementStateY.Jumped)
         {
@@ -513,9 +475,6 @@ public class Posessable : IPosessable
         CollisionShape.SetPosition(_position);
         PosessableCollider.SetPosition(new Vector2(Position.X - 100, Position.Y - 100));
         _particleController.SetPosition(new Vector2(_position.X + (Stats.Width / 2), _position.Y + Stats.Height));
-        //_canGroundRay.Position = new Vector2(Position.X - 10, Position.Y + (Stats.Height * 0.8F));
-        //_canShiftLeftRay.Position = new Vector2(Position.X + (Stats.Width * 0.8F), Position.Y - 25);
-        //_canShiftRightRay.Position = new Vector2(Position.X + (Stats.Width * 0.2F), Position.Y - 25);
         PosessRay.Position = new Point2(Position.X + (Stats.Width / 2), Position.Y + (Stats.Height / 2));
         EnemyAIFieldOfView.SetPosition(new Vector2(Position.X - 400, Position.Y - 400));
 
@@ -533,11 +492,6 @@ public class Posessable : IPosessable
         _outlineRect.Position = _position;
     }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="damage"></param>
-    /// <param name="knockbackDirection"> which way this should be knocked back. Left to right with -1 being left and 1 being right.</param>
     private void ReceiveDamage(int damage, float knockbackDirection, float knockbackStrenght)
     {
         Stats.Health -= damage;
@@ -570,8 +524,7 @@ public class Posessable : IPosessable
         var attackPosition = attack.CollisionShape.GetPosition();
         if (CollisionShape.IsColliding(attack.CollisionShape))
         {
-            var knockbackDirection = attackPosition.X > Position.X ? -1 : (float)1;
-            // attacker is on the right
+            var knockbackDirection = attackPosition.X > Position.X ? -1 : 1;
             ReceiveDamage(attack.BaseDamage, knockbackDirection, attack.KnockBack);
         }
     }

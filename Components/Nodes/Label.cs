@@ -23,9 +23,6 @@ internal class Label : Interfaces.IDrawable
 
     public bool Visible => true;
 
-    public List<INode> Children { get; set; }
-
-
     public Label(Game game, string text, Vector2 position, Color color)
     {
         _font = game.Content.Load<SpriteFont>("Fonts/TitleText");

@@ -47,9 +47,6 @@ public class MenuButton : Interfaces.IDrawable
 
     public bool Visible => true;
 
-    public List<INode> Children { get; set; }
-
-
     public MenuButton(Game game, Point position, Point size, string text, int padding = 25)
     {
         _font = game.Content.Load<SpriteFont>("Fonts/LabelText");

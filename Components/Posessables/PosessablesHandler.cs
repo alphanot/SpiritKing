@@ -11,11 +11,11 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
 {
     public int DrawOrder => 1;
 
-    public List<IPosessable> Posessables { get; set; }
+    public List<Posessable> Posessables { get; set; }
 
-    public IPosessable Player { get; set; }
+    public Posessable Player { get; set; }
 
-    public IPosessable HighlightedPosessable { get; set; }
+    public Posessable HighlightedPosessable { get; set; }
 
     public bool Enabled => true;
 
@@ -23,14 +23,12 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
 
     public bool Visible => true;
 
-    public List<INode> Children { get; set; }
-
-    public static event Action<IPosessable> PosessableSwitched;
+    public static event Action<Posessable> PosessableSwitched;
 
     public PosessablesHandler()
     {
         Posessable.PosessableDied += RemovePosessable;
-        Posessables = new List<IPosessable>();
+        Posessables = new List<Posessable>();
     }
 
     public void InitializePosessables(Game game, GameWorldHandler gameWorld)
@@ -40,7 +38,7 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
         // Posessables.Add(new Hound(game, new Vector2(400, 0)));
     }
 
-    public IPosessable InitializePlayer()
+    public Posessable InitializePlayer()
     {
         Player = Posessables[0];
         Player.Posess();
@@ -97,7 +95,7 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
         }
     }
 
-    private void HandleEnemyAI(IPosessable p, float seconds)
+    private void HandleEnemyAI(Posessable p, float seconds)
     {
         // Check for aggro
         if (p.EnemyAIFieldOfView.Shape.Intersects(Player.CollisionShape.Shape))
@@ -129,7 +127,7 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
 
     private void HighlightPosessable()
     {
-        IPosessable closestPosessable = null;
+        Posessable closestPosessable = null;
         foreach (var p in Posessables)
         {
             p.IsHighlighted = false;

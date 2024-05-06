@@ -22,8 +22,6 @@ public class GameWorldHandler : Interfaces.IUpdateable, Interfaces.IDrawable
 
     public bool Visible => true;
 
-    public List<INode> Children { get; set; }
-
     public bool Enabled => true;
 
     public int UpdateOrder => 1;

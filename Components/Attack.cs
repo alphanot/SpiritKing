@@ -29,8 +29,6 @@ public class Attack
 
     public bool IsCoolingDown { get; set; } = false;
 
-    public List<INode> Children { get; set; }
-
     public Attack(CollisionShape collisionShape, float attackSpeed, float attackCooldown, int baseDamage, float staminaDrain, float knockBack)
     {
         CollisionShape = collisionShape;

@@ -2,6 +2,4 @@
 
 namespace SpiritKing.Components.Interfaces;
 public interface INode
-{
-    List<INode> Children { get; set; }
-}
+{ }

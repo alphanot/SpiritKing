@@ -17,9 +17,6 @@ public class Platform : Interfaces.IDrawable
     public bool Visible => true;
 
     public bool IsActive { get; set; } = true;
-    public List<INode> Children { get; set; }
-
-    public static event Action<CollisionShape> GetCollidable;
 
     private readonly Texture2D _tempSprite;
 

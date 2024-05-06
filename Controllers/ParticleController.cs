@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Particles;
 using MonoGame.Extended.TextureAtlases;
 using SpiritKing.Components.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace SpiritKing.Controllers;
@@ -19,8 +20,6 @@ public class ParticleController : Components.Interfaces.IDrawable, Components.In
     public int UpdateOrder => 1;
 
     public bool Visible => true;
-
-    public List<INode> Children { get; set; }
 
     private readonly Texture2D _particleTexture;
 

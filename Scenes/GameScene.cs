@@ -35,6 +35,7 @@ public class GameScene : Scene
         PosessableHandler.InitializePlayer();
         Camera.LookAt(PosessableHandler.Player.Position);
         _hud = new HUD(game, PosessableHandler.Player.Stats.MaxHealth, PosessableHandler.Player.Stats.MaxStamina, PosessableHandler.Player.Stats.Health, PosessableHandler.Player.Stats.Stamina, PosessableHandler.Player.PlayerState.IsExhausted);
+        _hud.SetPosition(Camera.Position);
 
         AddNode(_hud);
         AddNode(gameWorld);
@@ -44,7 +45,7 @@ public class GameScene : Scene
         MusicController.PlaySong(MusicController.Ambience, true);
     }
 
-    private void SwitchPosessable(IPosessable posessable)
+    private void SwitchPosessable(Posessable posessable)
     {
         _hud.SetHUD(PosessableHandler.Player.Stats.MaxHealth, PosessableHandler.Player.Stats.MaxStamina, PosessableHandler.Player.Stats.Health, PosessableHandler.Player.Stats.Stamina, PosessableHandler.Player.PlayerState.IsExhausted);
     }

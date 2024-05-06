@@ -35,8 +35,6 @@ public class Scene : Interfaces.IDrawable, Interfaces.IUpdateable
 
     public bool Visible => true;
 
-    public List<INode> Children { get; set; }
-
     public Texture2D _logo;
 
     public Scene(Game game)
