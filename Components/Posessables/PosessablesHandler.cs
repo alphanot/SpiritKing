@@ -1,13 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using SpiritKing.Components.Interfaces;
-using SpiritKing.Components.Nodes;
-using SpiritKing.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace SpiritKing.Components.Posessables;
 

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace SpiritKing.Components;
 public class GameWorldHandler : Interfaces.IUpdateable, Interfaces.IDrawable
 {
-    Game Game;
+    readonly Game Game;
 
     public List<Platform> Platforms { get; set; }
 

@@ -1,8 +1,6 @@
 ﻿using Apos.Input;
-using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
-using SpiritKing.Utils;
-using System.Reflection.Metadata.Ecma335;
+using Microsoft.Xna.Framework.Input;
 
 namespace SpiritKing.Controllers.InputControllers;
 

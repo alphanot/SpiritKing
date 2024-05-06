@@ -1,13 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Apos.Input;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using Apos.Input;
-using Track = Apos.Input.Track;
 using Microsoft.Xna.Framework.Input;
-using System.Diagnostics;
-using SpiritKing.Controllers;
 using SpiritKing.Components.Nodes;
+using SpiritKing.Controllers;
+using System.Diagnostics;
 
 namespace SpiritKing.Scenes;
 public class TestScene : Scene

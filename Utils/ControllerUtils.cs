@@ -1,5 +1,5 @@
-﻿using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System.Threading;
 
 namespace SpiritKing.Utils;

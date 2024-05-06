@@ -15,8 +15,6 @@ using SpiritKing.Structs;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 
 namespace SpiritKing.Components.Posessables;
 
@@ -97,7 +95,7 @@ public class Posessable : IPosessable
     private float _jumpBufferCounter;
 
     private EnemyHealthBar _enemyHealthBar;
-    private GameWorldHandler _worldHandler;
+    private readonly GameWorldHandler _worldHandler;
     protected Posessable(Game game, Stats stats, GameWorldHandler gameWorld, bool isPosessed = false)
     {
         _worldHandler = gameWorld;

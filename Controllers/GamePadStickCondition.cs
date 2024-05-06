@@ -1,6 +1,5 @@
 ﻿using Apos.Input;
 using System;
-using System.Diagnostics;
 namespace SpiritKing.Controllers;
 
 public class GamePadStickCondition : ICondition

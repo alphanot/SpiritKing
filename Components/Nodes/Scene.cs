@@ -1,5 +1,4 @@
-﻿using Apos.Input;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.ViewportAdapters;
@@ -8,7 +7,6 @@ using SpiritKing.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace SpiritKing.Components.Nodes;
 

@@ -1,7 +1,5 @@
-﻿using Apos.Input;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using SpiritKing.Components.Interfaces;
 using SpiritKing.Components.Nodes;
 using SpiritKing.Controllers.InputControllers;
@@ -24,7 +22,7 @@ public class MenuController : Components.Interfaces.IUpdateable, Components.Inte
 
     public List<INode> Children { get; set; }
 
-    private MenuInputController _menuInputController = new();
+    private readonly MenuInputController _menuInputController = new();
     public MenuController(MenuButton[] buttons)
     {
         Buttons = buttons;
