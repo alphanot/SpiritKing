@@ -80,7 +80,7 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
     private readonly GameWorldHandler _worldHandler;
 
     private float _stunTimer;
-    private float _STUN_TIMER_MAX_TIME = 0.2f;
+    private readonly float _STUN_TIMER_MAX_TIME = 0.2f;
     private bool _stunned = false;
 
     public EnemyAI EnemyAI { get; set; }

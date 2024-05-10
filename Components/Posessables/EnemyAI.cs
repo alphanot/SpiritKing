@@ -1,12 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
-using SpiritKing.Utils;
+﻿using SpiritKing.Utils;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace SpiritKing.Components.Posessables;
 public class EnemyAI : IDisposable

@@ -1,8 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using SpiritKing.Components.Interfaces;
 using System;
-using System.Collections.Generic;
 
 namespace SpiritKing.Components.Nodes;
 

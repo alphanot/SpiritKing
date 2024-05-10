@@ -1,9 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using SpiritKing.Components.Interfaces;
 using SpiritKing.Components.Nodes;
 using SpiritKing.Controllers.InputControllers;
-using System.Collections.Generic;
 
 namespace SpiritKing.Controllers;
 

@@ -20,7 +20,7 @@ public class TitleScreenScene : Scene
 
     private readonly MenuController _menuController;
 
-    ParticleController _bottomOfScreenParticles;
+    readonly ParticleController _bottomOfScreenParticles;
     public override event Action<Scene> SceneSwitched;
 
     public TitleScreenScene(Game game) : base(game)

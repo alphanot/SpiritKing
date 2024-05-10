@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Tweening;
 using SpiritKing.Components;
-using SpiritKing.Components.Interfaces;
 using SpiritKing.Components.Nodes;
 using SpiritKing.Components.Posessables;
 using SpiritKing.Controllers;
@@ -24,7 +23,7 @@ public class GameScene : Scene
         Name = "Game Scene";
         PosessableHandler = new PosessablesHandler();
         gameWorld = new GameWorldHandler(game);
-        
+
         PosessableHandler.InitializePosessables(game, gameWorld);
         PosessableHandler.InitializePlayer();
         Camera.LookAt(PosessableHandler.Player.Position);

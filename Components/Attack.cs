@@ -1,8 +1,4 @@
-﻿using Apos.Input;
-using SpiritKing.Components.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
 
 namespace SpiritKing.Components;
 

@@ -1,16 +1,11 @@
-﻿using SpiritKing.Components.Interfaces;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpiritKing.Utils;
 public class GameTimeDelay : IDisposable
 {
-    private Action _callback;
-    private float _sleepTime = 0f;
+    private readonly Action _callback;
+    private readonly float _sleepTime = 0f;
     private float _timer = 0f;
     private bool _running = false;
 

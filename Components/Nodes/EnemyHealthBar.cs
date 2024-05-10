@@ -1,9 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
-using SpiritKing.Components.Interfaces;
 using SpiritKing.Components.Posessables;
-using System.Collections.Generic;
 
 namespace SpiritKing.Components.Nodes;
 
