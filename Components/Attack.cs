@@ -2,6 +2,7 @@
 using SpiritKing.Components.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace SpiritKing.Components;
 
@@ -39,7 +40,7 @@ public class Attack
         StaminaDrain = staminaDrain;
     }
 
-    public float Update(float seconds, Action<Attack> func, bool isExausted, ICondition btnCondition)
+    public float Update(float seconds, Action<Attack> func, bool isExausted, bool btnCondition)
     {
         if (IsActive)
         {
@@ -64,7 +65,7 @@ public class Attack
             IsCoolingDown = false;
         }
 
-        if (btnCondition.Pressed() && !isExausted && IsReady && !IsCoolingDown)
+        if (btnCondition && !isExausted && IsReady && !IsCoolingDown)
         {
             AttackDurationCounter = AttackDuration;
             IsActive = true;

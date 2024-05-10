@@ -35,7 +35,6 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
     }
     Vector2 velocity;
     public virtual CollisionShape CollisionShape { get; set; }
-    public virtual CollisionShape EnemyAIFieldOfView { get; set; }
     public CollisionShape PosessableCollider { get; set; }
     public Texture2D Sprite { get; set; }
 
@@ -79,8 +78,15 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
 
     private EnemyHealthBar _enemyHealthBar;
     private readonly GameWorldHandler _worldHandler;
+
+    private float _stunTimer;
+    private float _STUN_TIMER_MAX_TIME = 0.2f;
+    private bool _stunned = false;
+
+    public EnemyAI EnemyAI { get; set; }
     protected Posessable(Game game, Stats stats, GameWorldHandler gameWorld, bool isPosessed = false)
     {
+        EnemyAI = new();
         _worldHandler = gameWorld;
         InputController = new PosessableInputController();
         IsPosessed = isPosessed;
@@ -95,7 +101,7 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         CollisionShape = new CollisionShape(Position.X, Position.Y, Stats.Width, Stats.Height);
 
         PosessableCollider = new CollisionShape(Position.X - 100, Position.Y - 100, Stats.Width + 200, Stats.Height + 200);
-        EnemyAIFieldOfView = new CollisionShape(Position.X - 400, Position.Y - 400, Stats.Width + 800, Stats.Height + 800);
+        EnemyAI.EnemyAIFieldOfView = new CollisionShape(Position.X - 400, Position.Y - 400, Stats.Width + 800, Stats.Height + 800);
 
         PlayerAttacked += Signal_PlayerAttacked;
         PosessRay = new Line(new Point2(Position.X + (Stats.Width / 2), Position.Y + (Stats.Height / 2)), new Point2(400, 1));
@@ -185,11 +191,8 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         Velocity = Vector2.Zero;
 
         CollisionShape.Dispose();
-
+        EnemyAI.Dispose(true);
         CollisionShape = null;
-
-        EnemyAIFieldOfView.Dispose();
-        EnemyAIFieldOfView = null;
 
         PosessableCollider.Dispose();
         PosessableCollider = null;
@@ -211,6 +214,10 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         {
             HandleInput(seconds);
         }
+        else
+        {
+            HandleAIInput(seconds);
+        }
         HandleState(seconds);
         HandleStamina(seconds);
         UpdatePositionFromVelocity(seconds);
@@ -222,7 +229,6 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
             _posessCooldownTimer.ElapsedGameTime += gameTime.ElapsedGameTime;
             UpdatePosessCanActivate?.Invoke(_posessCooldownTimer.ElapsedGameTime.TotalSeconds > POSESS_TIMER_WAIT_TIME);
         }
-
         HandleParticles(gameTime);
     }
 
@@ -294,7 +300,87 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
 
         PosessRay.Target = new Point2((InputController.GetRightStickValue().X * 300) + PosessRay.Position.X, -(InputController.GetRightStickValue().Y * 300) + PosessRay.Position.Y);
         //Todo: This sucks. Don't put this kind of logic in this function
-        Stats.Stamina -= NormalAttack.Update(seconds, PlayerAttacked, PlayerState.IsExhausted, InputController.NormalAttack);
+        Stats.Stamina -= NormalAttack.Update(seconds, PlayerAttacked, PlayerState.IsExhausted, InputController.NormalAttack.Pressed());
+    }
+
+    private void HandleAIInput(float seconds)
+    {
+        if (!_stunned)
+        {
+            if (EnemyAI.MovementX < 0)
+            {
+                PlayerState.MovementX = PlayerState.MovementStateX.MoveLeft;
+            }
+            else if (EnemyAI.MovementX > 0)
+            {
+                PlayerState.MovementX = PlayerState.MovementStateX.MoveRight;
+            }
+            else
+            {
+                PlayerState.MovementX = Math.Abs(Velocity.X) > 10 ? PlayerState.MovementStateX.Slowing : PlayerState.MovementStateX.Idle;
+            }
+        }
+        else
+        {
+            _stunTimer += seconds;
+            if (_stunTimer > _STUN_TIMER_MAX_TIME)
+            {
+                _stunned = false;
+            }
+        }
+        PlayerState.IsRunning = EnemyAI.RunActivated;
+
+        if (EnemyAI.Jump == EnemyAI.JumpState.Pressed)
+        {
+            _jumpBufferCounter = _jumpBufferTime;
+        }
+        else
+        {
+            _jumpBufferCounter -= seconds;
+        }
+
+        if (PlayerState.CollidingY == PlayerState.CollidingYState.Ground)
+        {
+            _coyoteTimeCounter = _coyoteTime;
+        }
+        else
+        {
+            _coyoteTimeCounter -= seconds;
+        }
+
+        if (EnemyAI.Jump == EnemyAI.JumpState.Held)
+        {
+            if (_jumpBufferCounter > 0)
+            {
+                jumpCanActivate = true;
+            }
+            if (jumpCanActivate && _coyoteTimeCounter > 0f)
+            {
+                jumpCanActivate = false;
+                PlayerState.MovementY = PlayerState.MovementStateY.Jumped;
+                _coyoteTimeCounter = 0;
+                _jumpBufferCounter = 0;
+            }
+            else
+            {
+                PlayerState.MovementY = PlayerState.MovementStateY.Jumping;
+            }
+        }
+        else
+        {
+            if (PlayerState.CollidingY == PlayerState.CollidingYState.Ground)
+            {
+                jumpCanActivate = true;
+                PlayerState.MovementY = PlayerState.MovementStateY.Idle;
+            }
+            else
+            {
+                PlayerState.MovementY = PlayerState.MovementStateY.Falling;
+            }
+        }
+
+        //Todo: This sucks. Don't put this kind of logic in this function
+        Stats.Stamina -= NormalAttack.Update(seconds, PlayerAttacked, PlayerState.IsExhausted, EnemyAI.NormalAttackActivated);
     }
 
     private void HandleState(float seconds)
@@ -395,7 +481,7 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         PosessableCollider.SetPosition(new Vector2(Position.X - 100, Position.Y - 100));
         _particleController.SetPosition(new Vector2(_position.X + (Stats.Width / 2), _position.Y + Stats.Height));
         PosessRay.Position = new Point2(Position.X + (Stats.Width / 2), Position.Y + (Stats.Height / 2));
-        EnemyAIFieldOfView.SetPosition(new Vector2(Position.X - 400, Position.Y - 400));
+        EnemyAI.EnemyAIFieldOfView.SetPosition(new Vector2(Position.X - 400, Position.Y - 400));
 
         _enemyHealthBar.Position = new Vector2(Position.X, Position.Y - 10);
 
@@ -512,7 +598,8 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         }
         Velocity = new(knockbackDirection * knockbackStrenght, Velocity.Y - knockbackStrenght);
         PlayerState.MovementX = PlayerState.MovementStateX.KnockedBack;
-
+        _stunned = true;
+        _stunTimer = 0;
         if (Stats.Health < 1)
         {
             Die();

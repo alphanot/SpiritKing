@@ -49,7 +49,6 @@ public class Main : Game
             whiteRectangle = new Texture2D(GraphicsDevice, 1, 1);
             whiteRectangle.SetData(new[] { Color.White });
             InputHelper.Setup(this);
-            Debug.WriteLine(GraphicsDevice.Viewport.Width);
         }
         catch (Exception ex)
         {

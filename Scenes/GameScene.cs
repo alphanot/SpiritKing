@@ -24,13 +24,7 @@ public class GameScene : Scene
         Name = "Game Scene";
         PosessableHandler = new PosessablesHandler();
         gameWorld = new GameWorldHandler(game);
-        gameWorld.Platforms.Add(new Platform(game, 1, new Vector2(350, 500), new Vector2(600, 50)));
-        gameWorld.Platforms.Add(new Platform(game, 1, new Vector2(250, 300), new Vector2(600, 50)));
-        gameWorld.Platforms.Add(new Platform(game, 1, new Vector2(50, 600), new Vector2(600, 50)));
-        gameWorld.Platforms.Add(new Platform(game, 1, new Vector2(200, 0), new Vector2(100, 100)));
-        gameWorld.Platforms.Add(new Platform(game, 1, new Vector2(0, 100), new Vector2(1000, 100)));
-        gameWorld.Platforms.Add(new Platform(game, 1, new Vector2(1000, 800), new Vector2(1000, 50)));
-        gameWorld.Platforms.Add(new Platform(game, 1, new Vector2(3050, 305), new Vector2(500, 50)));
+        
         PosessableHandler.InitializePosessables(game, gameWorld);
         PosessableHandler.InitializePlayer();
         Camera.LookAt(PosessableHandler.Player.Position);

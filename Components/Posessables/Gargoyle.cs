@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System;
 
 namespace SpiritKing.Components.Posessables;
 
@@ -23,7 +24,7 @@ internal class Gargoyle : Posessable
         Name = "Gargoyle",
         Health = 100,
         Stamina = 170,
-        Color = Color.DarkKhaki,
+        Color = Color.DarkKhaki
     }, gameWorld, isPosesed)
     {
         Position = position;

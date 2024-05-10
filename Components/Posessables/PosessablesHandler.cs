@@ -1,9 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using SpiritKing.Components.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SpiritKing.Components.Posessables;
 
@@ -34,13 +35,13 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
     public void InitializePosessables(Game game, GameWorldHandler gameWorld)
     {
         Posessables.Add(new Goblin(game, new Vector2(0, 0), gameWorld));
-        Posessables.Add(new Gargoyle(game, new Vector2(1000, 0), gameWorld));
-        Posessables.Add(new Hound(game, new Vector2(400, 0), gameWorld));
+        //Posessables.Add(new Gargoyle(game, new Vector2(1000, 0), gameWorld));
+        Posessables.Add(new Hound(game, new Vector2(600, 0), gameWorld));
     }
 
     public Posessable InitializePlayer()
     {
-        Player = Posessables[0];
+        Player = Posessables[1];
         Player.Posess();
         return Player;
     }
@@ -88,40 +89,31 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
         {
             if (!p.IsPosessed)
             {
-                HandleEnemyAI(p, seconds);
+                HandleEnemyAI(p, gameTime);
             }
 
             p.Update(gameTime);
         }
     }
 
-    private void HandleEnemyAI(Posessable p, float seconds)
+    private void HandleEnemyAI(Posessable enemy, GameTime gameTime)
     {
-        // Check for aggro
-        if (p.EnemyAIFieldOfView.Shape.Intersects(Player.CollisionShape.Shape))
-        {
-            if (Player.Position.X < p.Position.X)
-            {
-                p.PlayerState.MovementX = States.PlayerState.MovementStateX.MoveLeft;
-            }
-            else
-            {
-                p.PlayerState.MovementX = States.PlayerState.MovementStateX.MoveRight;
-            }
+        enemy.EnemyAI.DelayNormalAttack.Update(gameTime);
+        enemy.EnemyAI.StopNormalAttack.Update(gameTime);
 
-            if (p.PlayerState.LastDirection == States.PlayerState.LastLookState.Left)
+        enemy.EnemyAI.MovementX = 0;
+        // Check for aggro
+        if (enemy.EnemyAI.EnemyAIFieldOfView.Shape.Intersects(Player.CollisionShape.Shape))
+        {
+            if (enemy.OtherPosessableIsWithinAttackingRange(Player))
             {
-                // p.Position.X - p.NormalAttack.AttackCollisionShape.Shape.Width
+                enemy.EnemyAI.DelayNormalAttack.Start();
             }
-            if (Math.Abs(Player.Position.X) - Math.Abs(p.Position.X - p.NormalAttack.CollisionShape.Shape.Width) < 0)
-            {
-                // p.NormalAttack.Update(seconds, p => Debug.Print("hello"), p.PlayerState.IsExhausted);
-                Debug.Print("hello");
-            }
+            enemy.EnemyAI.MovementX = !enemy.EnemyAI.NormalAttackActivated ? Player.Position.X < enemy.Position.X ? -1 : 1 : 0;
         }
         else
         {
-            p.PlayerState.MovementX = States.PlayerState.MovementStateX.Idle;
+            enemy.EnemyAI.MovementX = 0;
         }
     }
 
@@ -165,5 +157,21 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
             Posessables.Remove(posessable);
             posessable.Dispose();
         }
+    }
+}
+
+public static class PosessableExtensions
+{
+    public static bool OtherPosessableIsWithinAttackingRange(this Posessable current, Posessable other)
+    {
+        var halfCurrentWidth = current.Stats.Width / 2;
+        var currentCenterPoint = current.Position.X + halfCurrentWidth;
+
+        var halfOtherWidth = other.Stats.Width / 2;
+        var otherCenterPoint = other.Position.X + halfOtherWidth;
+
+        return current.Position.X < other.Position.X
+            ? currentCenterPoint + halfCurrentWidth + current.NormalAttack.CollisionShape.Shape.Width > otherCenterPoint - halfOtherWidth
+            : currentCenterPoint - halfCurrentWidth - current.NormalAttack.CollisionShape.Shape.Width < otherCenterPoint - halfOtherWidth;
     }
 }
