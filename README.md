@@ -13,7 +13,7 @@ Gamepad Controls:
     - Aim: Right Stick
     - Posess: Right Bumper
 
-Gamepad Controls:
+Keyboard Controls:
   Menu:
     - Up: Up
     - Down:  Down
