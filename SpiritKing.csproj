@@ -19,6 +19,7 @@
     <EmbeddedResource Include="Icon.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Apos.Input" Version="2.4.2" />
     <PackageReference Include="MonoGame.Extended" Version="3.8.0" />
     <PackageReference Include="MonoGame.Extended.Particles" Version="3.8.0" />
     <PackageReference Include="MonoGame.Extended.Tweening" Version="3.8.0" />
@@ -27,9 +28,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BlueEngine\BlueEngine.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Controllers\Models\" />
   </ItemGroup>
   <Target Name="RestoreDotnetTools" BeforeTargets="Restore">
     <Message Text="Restoring dotnet tools" Importance="High" />

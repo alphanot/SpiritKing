@@ -1,163 +1,176 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using SpiritKing.Components.Interfaces;
-using SpiritKing.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace SpiritKing.Components.Posessables
+namespace SpiritKing.Components.Posessables;
+
+public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
 {
-    public class PosessablesHandler : INode
+    public int DrawOrder => 1;
+
+    public List<Posessable> Posessables { get; set; }
+
+    public Posessable Player { get; set; }
+
+    public Posessable HighlightedPosessable { get; set; }
+
+    public bool Enabled => true;
+
+    public int UpdateOrder => 1;
+
+    public bool Visible => true;
+
+    public static event Action<Posessable> PosessableSwitched;
+
+    public PosessablesHandler()
     {
-        public int DrawOrder => 1;
+        Posessable.PosessableDied += RemovePosessable;
+        Posessables = new List<Posessable>();
+    }
 
-        public List<IPosessable> Posessables { get; set; }
+    public void InitializePosessables(Game game, GameWorldHandler gameWorld)
+    {
+        Posessables.Add(new Goblin(game, new Vector2(0, 0), gameWorld));
+        //Posessables.Add(new Gargoyle(game, new Vector2(1000, 0), gameWorld));
+        Posessables.Add(new Hound(game, new Vector2(600, 0), gameWorld));
+    }
 
-        public IPosessable Player { get; set; }
+    public Posessable InitializePlayer()
+    {
+        Player = Posessables[0];
+        Player.Posess();
+        return Player;
+    }
 
-        public IPosessable HighlightedPosessable { get; set; }
-
-        public static event Action<IPosessable> PosessableSwitched;
-
-        public PosessablesHandler()
+    public void Dispose()
+    {
+        foreach (var p in Posessables)
         {
-            Posessable.PosessableDied += RemovePosessable;
-            Posessables = new List<IPosessable>();
+            p.Dispose();
+        }
+    }
+
+    public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+    {
+        foreach (var p in Posessables)
+        {
+            p.Draw(gameTime, spriteBatch);
+        }
+    }
+
+    public void Update(GameTime gameTime)
+    {
+        var seconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        if (Player.InputController.IsRightStickMoving())
+        {
+            HighlightPosessable();
+        }
+        else if (HighlightedPosessable != null)
+        {
+            HighlightedPosessable.IsHighlighted = false;
+            HighlightedPosessable = null;
         }
 
-        public void InitializePosessables(Game game)
+        if (Player.InputController.Posess.Pressed() && Player.PosessIsReady() && HighlightedPosessable != null && HighlightedPosessable.CanBePosessed())
         {
-            Posessables.Add(new Goblin(game, new Vector2(0, 0)));
-            Posessables.Add(new Gargoyle(game, new Vector2(1000, 0)));
-            Posessables.Add(new Hound(game, new Vector2(400, 0)));
-        }
-
-        public IPosessable InitializePlayer()
-        {
-            Player = Posessables[0];
+            Player.Unposess();
+            Player = HighlightedPosessable;
             Player.Posess();
-            return Player;
+            HighlightedPosessable = null;
+            PosessableSwitched.Invoke(Player);
         }
 
-        public void Dispose()
+        foreach (var p in Posessables)
         {
-            foreach (var p in Posessables)
+            if (!p.IsPosessed)
             {
-                p.Dispose();
+                HandleEnemyAI(p, gameTime);
             }
+
+            p.Update(gameTime);
         }
 
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+    }
+
+    private void HandleEnemyAI(Posessable enemy, GameTime gameTime)
+    {
+        enemy.EnemyAI.DelayNormalAttack.Update(gameTime);
+        enemy.EnemyAI.StopNormalAttack.Update(gameTime);
+        enemy.EnemyAI.WalkAroundAndSwitchDirections.Update(gameTime);
+
+        // Check for aggro
+        if (enemy.EnemyAI.EnemyAIFieldOfView.Shape.Intersects(Player.CollisionShape.Shape))
         {
-            foreach (var p in Posessables)
+            if (enemy.OtherPosessableIsWithinAttackingRange(Player))
             {
-                p.Draw(gameTime, spriteBatch);
+                enemy.EnemyAI.DelayNormalAttack.Start();
             }
+            enemy.EnemyAI.MovementX = !enemy.EnemyAI.NormalAttackActivated ? Player.Position.X < enemy.Position.X ? -1 : 1 : 0;
         }
-
-        public void Update(GameTime gameTime)
+        else
         {
-            float seconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            if (InputController.GetRightStickPastDeadzone(InputController.GameState.Game))
-            {
-                HighlightPosessable();
-            }
-            else if (HighlightedPosessable != null)
-            {
-                HighlightedPosessable.IsHighlighted = false;
-                HighlightedPosessable = null;
-            }
-
-            if (InputController.IsPressed(Buttons.RightShoulder, InputController.GameState.Game) && Player.PosessIsReady() && HighlightedPosessable.CanBePosessed() && HighlightedPosessable != null)
-            {
-                Player.Unposess();
-                Player = HighlightedPosessable;
-                Player.Posess();
-                HighlightedPosessable = null;
-                PosessableSwitched.Invoke(Player);
-            }
-
-            foreach (var p in Posessables)
-            {
-                if (!p.IsPosessed)
-                    HandleEnemyAI(p, seconds);
-                p.Update(gameTime);
-            }
+            enemy.EnemyAI.WalkAroundAndSwitchDirections.Start();
         }
+    }
 
-        private void HandleEnemyAI(IPosessable p, float seconds)
+    private void HighlightPosessable()
+    {
+        Posessable closestPosessable = null;
+        foreach (var p in Posessables)
         {
-            // Check for aggro
-            if (p.EnemyAIFieldOfView.Shape.Intersects(Player.Collider.Shape))
+            p.IsHighlighted = false;
+            if (Player.PosessRay.Intersects(p.PosessableCollider.Shape) && !p.CollisionShape.Shape.Contains(Player.PosessRay.Position))
             {
-                if (Player.Position.X < p.Position.X)
+                if (closestPosessable == null)
                 {
-                    p.PlayerState.MovementX = States.PlayerState.MovementStateX.MoveLeft;
+                    closestPosessable = p;
                 }
                 else
                 {
-                    p.PlayerState.MovementX = States.PlayerState.MovementStateX.MoveRight;
-                }
-
-                if (p.PlayerState.LastDirection == States.PlayerState.LastLookState.Left)
-                {
-                    // p.Position.X - p.NormalAttack.AttackCollisionShape.Shape.Width
-                }
-                if (Math.Abs(Player.Position.X) - Math.Abs(p.Position.X - p.NormalAttack.AttackCollisionShape.Shape.Width) < 0)
-                {
-                    // p.NormalAttack.Update(seconds, p => Debug.Print("hello"), p.PlayerState.IsExhausted);
-                    Debug.Print("hello");
-                }
-            }
-            else
-            {
-                p.PlayerState.MovementX = States.PlayerState.MovementStateX.Idle;
-            }
-        }
-
-        private void HighlightPosessable()
-        {
-            IPosessable closestPosessable = null;
-            foreach (var p in Posessables)
-            {
-                p.IsHighlighted = false;
-                if (Player.PosessRay.Intersects(p.PosessableCollider.Shape) && !p.Collider.Shape.Contains(Player.PosessRay.Position))
-                {
-                    if (closestPosessable == null)
+                    if (Microsoft.Xna.Framework.Vector2.Distance(closestPosessable.Position, Player.Position) >
+                        Microsoft.Xna.Framework.Vector2.Distance(p.Position, Player.Position))
                     {
                         closestPosessable = p;
                     }
-                    else
-                    {
-                        if (Microsoft.Xna.Framework.Vector2.Distance(closestPosessable.Position, Player.Position) >
-                            Microsoft.Xna.Framework.Vector2.Distance(p.Position, Player.Position))
-                        {
-                            closestPosessable = p;
-                        }
-                    }
                 }
             }
-            if (closestPosessable != null)
-            {
-                HighlightedPosessable = closestPosessable;
-                HighlightedPosessable.IsHighlighted = true;
-            }
         }
-
-        private void RemovePosessable(Posessable posessable)
+        if (closestPosessable != null)
         {
-            if (Player == posessable)
-            {
-                Debug.Print("implement death ");
-            }
-            else
-            {
-                Posessables.Remove(posessable);
-                posessable.Dispose();
-            }
+            HighlightedPosessable = closestPosessable;
+            HighlightedPosessable.IsHighlighted = true;
         }
+    }
+
+    private void RemovePosessable(Posessable posessable)
+    {
+        if (Player == posessable)
+        {
+            Debug.Print("implement death ");
+        }
+        else
+        {
+            Posessables.Remove(posessable);
+            posessable.Dispose();
+        }
+    }
+}
+
+public static class PosessableExtensions
+{
+    public static bool OtherPosessableIsWithinAttackingRange(this Posessable current, Posessable other)
+    {
+        var halfCurrentWidth = current.Stats.Width / 2;
+        var currentCenterPoint = current.Position.X + halfCurrentWidth;
+
+        var halfOtherWidth = other.Stats.Width / 2;
+        var otherCenterPoint = other.Position.X + halfOtherWidth;
+
+        return current.Position.X < other.Position.X
+            ? currentCenterPoint + halfCurrentWidth + current.NormalAttack.CollisionShape.Shape.Width > otherCenterPoint - halfOtherWidth
+            : currentCenterPoint - halfCurrentWidth - current.NormalAttack.CollisionShape.Shape.Width < otherCenterPoint - halfOtherWidth;
     }
 }
