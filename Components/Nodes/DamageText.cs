@@ -15,16 +15,19 @@ public class DamageText : IDrawable
 
     private readonly SpriteFont _font;
 
-    public DamageText(Game game, Vector2 position, string damage)
+    private readonly Color _color;
+
+    public DamageText(Game game, Vector2 position, string damage, Color color)
     {
         _font = game.Content.Load<SpriteFont>("Fonts/HUDText");
         Position = position;
         DamageAmount = damage;
+        _color = color;
     }
 
     public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
     {
-        spriteBatch.DrawString(_font, DamageAmount, Position, Color.White);
+        spriteBatch.DrawString(_font, DamageAmount, Position, _color);
     }
 
     public void Dispose() => GC.SuppressFinalize(this);

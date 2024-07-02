@@ -30,12 +30,11 @@ public class DamageTextController : Components.Interfaces.IUpdateable, Component
         Game = game;
     }
 
-    public void Hit(Vector2 position, int damage)
+    public void Hit(Vector2 position, int damage, Func<float, float> easing, float duration, Color color)
     {
-        damageTexts.Add(new DamageText(Game, position, damage.ToString()));
-        _tweener.TweenTo(target: damageTexts.Last(), expression: x => x.Position, toValue: GetRandomPosition(position), duration: 0.5f)
-            .Easing(EasingFunctions.QuadraticOut).OnEnd(x => damageTexts.Remove(x.Target as DamageText));
-
+        damageTexts.Add(new DamageText(Game, position, damage.ToString(), color));
+        _tweener.TweenTo(target: damageTexts.Last(), expression: x => x.Position, toValue: GetRandomPosition(position), duration: duration)
+            .Easing(easing).OnEnd(x => damageTexts.Remove(x.Target as DamageText));
     }
 
     public void Update(GameTime gameTime)
@@ -55,9 +54,9 @@ public class DamageTextController : Components.Interfaces.IUpdateable, Component
 
     private Vector2 GetRandomPosition(Vector2 startPos)
     {
-        var differenceX = rand.Next(1, 50);
+        var differenceX = rand.Next(1, 100);
         var differenceY = rand.Next(1, 20);
 
-        return startPos + new Vector2(differenceX + 50, -(differenceY + 50));
+        return startPos + new Vector2(differenceX - 50, -(differenceY + 50));
     }
 }

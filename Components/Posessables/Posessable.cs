@@ -6,6 +6,7 @@ using MonoGame.Extended.Particles.Modifiers;
 using MonoGame.Extended.Particles.Modifiers.Containers;
 using MonoGame.Extended.Particles.Modifiers.Interpolators;
 using MonoGame.Extended.Particles.Profiles;
+using MonoGame.Extended.Tweening;
 using SpiritKing.Components.Nodes;
 using SpiritKing.Components.States;
 using SpiritKing.Controllers;
@@ -597,12 +598,13 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         Stats.Health -= damage;
         if (IsPosessed)
         {
+            DamageTextController.Hit(new Vector2(Position.X + (Stats.Width / 2), Position.Y + (Stats.Height / 2)), damage, EasingFunctions.QuadraticOut, 0.5f, Color.IndianRed);
             UpdateHealthBar?.Invoke(Stats.Health);
         }
         else
         {
             _enemyHealthBar.SetCurrentHealth(Stats.Health);
-            DamageTextController.Hit(new Vector2(Position.X + (Stats.Width / 2), Position.Y + (Stats.Height / 2)), damage);
+            DamageTextController.Hit(new Vector2(Position.X + (Stats.Width / 2), Position.Y + (Stats.Height / 2)), damage, EasingFunctions.QuadraticOut, 0.5f, Color.White);
         }
         Velocity = new(knockbackDirection * knockbackStrenght, Velocity.Y - knockbackStrenght);
         PlayerState.MovementX = PlayerState.MovementStateX.KnockedBack;
