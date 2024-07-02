@@ -1,5 +1,5 @@
-No Keyboard support implemented yet
-Controls:
+
+Gamepad Controls:
   Menu:
     - Up: Dpad Up
     - Down: Dpad Down
@@ -12,3 +12,17 @@ Controls:
     - Attack: Y
     - Aim: Right Stick
     - Posess: Right Bumper
+
+Gamepad Controls:
+  Menu:
+    - Up: Up
+    - Down:  Down
+    - Select: Enter
+    - Back: Backspace
+  Game:
+    - Move: Left/Right
+    - Run: Left Shift
+    - Jump: Spacebar
+    - Attack: W
+    - Aim: Not implemented
+    - Posess: Right Not Implemented
