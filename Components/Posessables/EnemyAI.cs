@@ -1,7 +1,6 @@
 ﻿using MonoGame.Extended;
 using SpiritKing.Utils;
 using System;
-using System.Diagnostics;
 using System.Threading;
 
 namespace SpiritKing.Components.Posessables;
@@ -35,7 +34,7 @@ public class EnemyAI : IDisposable
         Released
     }
 
-    private FastRandom _rand;
+    private readonly FastRandom _rand;
 
     public EnemyAI()
     {

@@ -12,7 +12,6 @@ using SpiritKing.Controllers;
 using SpiritKing.Controllers.InputControllers;
 using SpiritKing.Structs;
 using System;
-using System.Diagnostics;
 
 namespace SpiritKing.Components.Posessables;
 

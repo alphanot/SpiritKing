@@ -5,7 +5,6 @@ using MonoGame.Extended.Tweening;
 using SpiritKing.Components.Nodes;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace SpiritKing.Controllers;
@@ -24,7 +23,7 @@ public class DamageTextController : Components.Interfaces.IUpdateable, Component
 
     public List<DamageText> damageTexts = new();
 
-    private FastRandom rand = new FastRandom();
+    private readonly FastRandom rand = new FastRandom();
 
     public DamageTextController(Game game)
     {
