@@ -31,7 +31,6 @@ public class EnemyHealthBar : Interfaces.IDrawable
         _healthSprite = new Texture2D(game.GraphicsDevice, 1, 1);
         _healthSprite.SetData(new[] { Color.White });
         SetCurrentHealth(currentHealth);
-        Posessable.UpdateHealthBar += SetCurrentHealth;
     }
 
     public void Dispose()

@@ -1,5 +1,7 @@
-﻿using SpiritKing.Utils;
+﻿using MonoGame.Extended;
+using SpiritKing.Utils;
 using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace SpiritKing.Components.Posessables;
@@ -23,7 +25,7 @@ public class EnemyAI : IDisposable
 
     public GameTimeDelay DelayNormalAttack;
     public GameTimeDelay StopNormalAttack;
-
+    public GameTimeDelay WalkAroundAndSwitchDirections;
     public Thread AttackThread { get; }
 
     public enum JumpState
@@ -33,11 +35,23 @@ public class EnemyAI : IDisposable
         Released
     }
 
+    private FastRandom _rand;
+
     public EnemyAI()
     {
+        _rand = new FastRandom();
         DelayNormalAttack = new GameTimeDelay(NormalAttack, PauseBeforeNormalAttack);
         StopNormalAttack = new GameTimeDelay(NormalAttackStopped, 1f);
+        WalkAroundAndSwitchDirections = new GameTimeDelay(SwitchDirectionsAndWalkAround, _rand.NextSingle(0f, 2f));
     }
+
+    private void SwitchDirectionsAndWalkAround()
+    {
+        WalkAroundAndSwitchDirections.SetSleepTime(_rand.NextSingle(0f, 2f));
+
+        MovementX = _rand.Next(-1, 1);
+    }
+
     private void NormalAttack()
     {
         NormalAttackActivated = true;

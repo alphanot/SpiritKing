@@ -89,7 +89,6 @@ public class Scene : Interfaces.IDrawable, Interfaces.IUpdateable
         foreach (var node in DrawableNodes)
         {
             node.Dispose();
-            Debug.Print("Scene.Dispose() Foreach(" + node.ToString() + ")");
         }
         MusicController.Unload();
     }

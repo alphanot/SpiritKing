@@ -27,6 +27,6 @@ internal class Hound : Posessable
     }, gameWorld, isPosesed)
     {
         Position = position;
-        NormalAttack = new Attack(new CollisionShape(Position.X, Position.Y, 10, 44), 0.2f, 0.2f, 10, 30, 10);
+        NormalAttack = new Attack(new CollisionShape(Position.X, Position.Y, 35, 40), 0.2f, 0.2f, 10, 30, 100);
     }
 }

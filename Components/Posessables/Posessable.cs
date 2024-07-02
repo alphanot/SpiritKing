@@ -84,8 +84,12 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
     private bool _stunned = false;
 
     public EnemyAI EnemyAI { get; set; }
+
+    private DamageTextController DamageTextController { get; set; }
+
     protected Posessable(Game game, Stats stats, GameWorldHandler gameWorld, bool isPosessed = false)
     {
+        DamageTextController = new DamageTextController(game);
         EnemyAI = new();
         _worldHandler = gameWorld;
         InputController = new PosessableInputController();
@@ -165,6 +169,8 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         {
             spriteBatch.Draw(Sprite, NormalAttack.CollisionShape.Shape.Position, NormalAttack.CollisionShape.Shape.ToRectangle(), Color.White);
         }
+        DamageTextController.Draw(gameTime, spriteBatch);
+
     }
 
     public void Dispose()
@@ -205,10 +211,12 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
 
         _enemyHealthBar.Dispose();
         _enemyHealthBar = null;
+        DamageTextController.Dispose();
     }
 
     public void Update(GameTime gameTime)
     {
+        DamageTextController.Update(gameTime);
         var seconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
         if (IsPosessed)
         {
@@ -595,6 +603,7 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         else
         {
             _enemyHealthBar.SetCurrentHealth(Stats.Health);
+            DamageTextController.Hit(new Vector2(Position.X + (Stats.Width / 2), Position.Y + (Stats.Height / 2)), damage);
         }
         Velocity = new(knockbackDirection * knockbackStrenght, Velocity.Y - knockbackStrenght);
         PlayerState.MovementX = PlayerState.MovementStateX.KnockedBack;
@@ -609,7 +618,6 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
 
     private void Die()
     {
-        Debug.Print("Posessable.Die()");
         PosessableDied?.Invoke(this);
     }
 

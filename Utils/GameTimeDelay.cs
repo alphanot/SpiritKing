@@ -5,7 +5,7 @@ namespace SpiritKing.Utils;
 public class GameTimeDelay : IDisposable
 {
     private readonly Action _callback;
-    private readonly float _sleepTime = 0f;
+    private float _sleepTime = 0f;
     private float _timer = 0f;
     private bool _running = false;
 
@@ -15,7 +15,6 @@ public class GameTimeDelay : IDisposable
     {
         _callback = callback;
         _sleepTime = sleepTime;
-        Debug.WriteLine("Building GameTimeDelay");
     }
 
     protected virtual void Dispose(bool disposing)
@@ -55,4 +54,6 @@ public class GameTimeDelay : IDisposable
             }
         }
     }
+
+    public void SetSleepTime(float time) => _sleepTime = time;
 }

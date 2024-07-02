@@ -39,7 +39,7 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
 
     public Posessable InitializePlayer()
     {
-        Player = Posessables[1];
+        Player = Posessables[0];
         Player.Posess();
         return Player;
     }
@@ -92,14 +92,15 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
 
             p.Update(gameTime);
         }
+
     }
 
     private void HandleEnemyAI(Posessable enemy, GameTime gameTime)
     {
         enemy.EnemyAI.DelayNormalAttack.Update(gameTime);
         enemy.EnemyAI.StopNormalAttack.Update(gameTime);
+        enemy.EnemyAI.WalkAroundAndSwitchDirections.Update(gameTime);
 
-        enemy.EnemyAI.MovementX = 0;
         // Check for aggro
         if (enemy.EnemyAI.EnemyAIFieldOfView.Shape.Intersects(Player.CollisionShape.Shape))
         {
@@ -111,7 +112,7 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
         }
         else
         {
-            enemy.EnemyAI.MovementX = 0;
+            enemy.EnemyAI.WalkAroundAndSwitchDirections.Start();
         }
     }
 
