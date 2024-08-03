@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Drawing;
+using Microsoft.Xna.Framework;
+using SpiritKing.Utils;
 
 namespace SpiritKing.Components;
 
-public class Attack
+public class Attack : SpatialEntity
 {
-    public CollisionShape CollisionShape { get; set; }
-
     public float AttackDuration { get; private set; }
 
     public float AttackDurationCounter { get; set; } = 0;
@@ -26,9 +27,10 @@ public class Attack
 
     public bool IsCoolingDown { get; set; } = false;
 
-    public Attack(CollisionShape collisionShape, float attackSpeed, float attackCooldown, int baseDamage, float staminaDrain, float knockBack)
+    public Attack(Vector2 position, Vector2 size, float attackSpeed, float attackCooldown, int baseDamage, float staminaDrain, float knockBack)
     {
-        CollisionShape = collisionShape;
+        Position = position;
+        Size = size;
         AttackDuration = attackSpeed;
         AttackCooldown = attackCooldown;
         BaseDamage = baseDamage;

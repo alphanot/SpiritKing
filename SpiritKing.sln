@@ -1,9 +1,9 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpiritKing", "SpiritKing.csproj", "{AC7AFD87-ACC0-46AA-989F-BD2D84282570}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpiritKing", "SpiritKing.csproj", "{AC7AFD87-ACC0-46AA-989F-BD2D84282570}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueEngine", "..\BlueEngine\BlueEngine.csproj", "{EA3E83BA-E606-4AA2-9EDC-9E887AB95FB0}"
 EndProject

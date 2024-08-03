@@ -1,15 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using SpiritKing.Utils;
 
 namespace SpiritKing.Components.Nodes;
 
-public class Platform : Interfaces.IDrawable
+public class Platform : SpatialEntity, Interfaces.IDrawable
 {
     public int DrawOrder { get; } = 1;
     public Game Game { get; set; }
-    public Vector2 Position { get; set; }
-    public CollisionShape CollisionShape { get; set; }
 
     public bool Visible => true;
 
@@ -28,12 +27,12 @@ public class Platform : Interfaces.IDrawable
         _tempSprite = new Texture2D(game.GraphicsDevice, 1, 1);
         _tempSprite.SetData(new[] { Color.White });
         Position = position;
-        CollisionShape = new CollisionShape((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
+        Size = size;
     }
 
     public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
     {
-        spriteBatch.Draw(_tempSprite, Position, CollisionShape.Shape.ToRectangle(), Color.DarkSlateGray);
+        spriteBatch.Draw(_tempSprite, Position, Bounds, Color.DarkSlateGray);
     }
 
     public void Dispose()

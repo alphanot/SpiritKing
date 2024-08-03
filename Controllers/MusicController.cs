@@ -17,8 +17,8 @@ public class MusicController
 
     public static void PlaySong(Song song, bool repeat = false)
     {
-        //MediaPlayer.Play(song);
-        //MediaPlayer.IsRepeating = repeat;
+        MediaPlayer.Play(song);
+        MediaPlayer.IsRepeating = repeat;
     }
 
     public void Unload()
