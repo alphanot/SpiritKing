@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace SpiritKing.Components.Nodes;
 
-public class Scene : Interfaces.IDrawable, Interfaces.IUpdateable
+public abstract class Scene : Interfaces.IDrawable, Interfaces.IUpdateable
 {
     public List<Interfaces.IDrawable> DrawableNodes = new();
     public List<Interfaces.IUpdateable> UpdateableNodes = new();
@@ -20,7 +20,7 @@ public class Scene : Interfaces.IDrawable, Interfaces.IUpdateable
 
     public OrthographicCamera Camera { get; set; }
 
-    public virtual event Action<Scene> SceneSwitched;
+    public event Action<Scene>? SceneSwitched;
 
     public int DrawOrder { get; } = 0;
 
@@ -36,6 +36,7 @@ public class Scene : Interfaces.IDrawable, Interfaces.IUpdateable
 
     public Texture2D _logo;
 
+    protected SaveDataController SaveDataController { get; private set; } = new SaveDataController();
     public Scene(Game game)
     {
         Game = game;
@@ -91,4 +92,6 @@ public class Scene : Interfaces.IDrawable, Interfaces.IUpdateable
         }
         MusicController.Unload();
     }
+
+    protected virtual void OnSceneSwitched(Scene scene) => SceneSwitched?.Invoke(scene);
 }

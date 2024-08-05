@@ -1,10 +1,13 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Apos.Input;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using MonoGame.Extended.Tweening;
 using SpiritKing.Components.Nodes;
 using SpiritKing.Components.Posessables;
 using SpiritKing.Controllers;
+using SpiritKing.Data;
 using SpiritKing.Utils;
 
 namespace SpiritKing.Scenes;
@@ -16,8 +19,15 @@ public class GameScene : Scene
     private PosessablesController PosessableController { get; set; }
     private GameWorldController GameWorldController { get; set; }
 
-    public GameScene(Game game) : base(game)
+    public readonly ICondition ExitKey = new AnyCondition(
+      new KeyboardCondition(Keys.Escape)
+  );
+
+    private SaveData _data;
+
+    public GameScene(Game game, SaveData? data) : base(game)
     {
+        _data = data ?? new();
         Name = "Game Scene";
 
         PosessableController = new PosessablesController();
@@ -29,7 +39,6 @@ public class GameScene : Scene
         Camera.LookAt(PosessableController.Player.Position);
         _hud = new HUD(game, PosessableController.Player);
         _hud.SetPosition(Camera.Position);
-
         AddNode(_hud);
         AddNode(GameWorldController);
         SortNodes();
@@ -48,6 +57,13 @@ public class GameScene : Scene
         _tweener.Update(gameTime.GetElapsedSeconds());
 
         _hud.SetPosition(Camera.Position);
+
+        if (ExitKey.Pressed())
+        {
+            // query game and update `_data`
+            _data.PlayerPosition = PosessableController.Player.Position;
+            SaveDataController.SaveGameAsync(_data).Wait();
+        }
     }
 
     public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)

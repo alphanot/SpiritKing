@@ -8,7 +8,6 @@ public class MenuInputController
        new KeyboardCondition(Keys.Up),
        new GamePadStickCondition(GamePadStickCondition.GamePadStick.Left, GamePadStickCondition.StickAxis.Y, GamePadStickCondition.AxisDirection.Positive, 0),
        new GamePadCondition(GamePadButton.Up, 0)
-
    );
 
     public readonly ICondition Down = new AnyCondition(
@@ -21,7 +20,6 @@ public class MenuInputController
        new KeyboardCondition(Keys.Left),
        new GamePadStickCondition(GamePadStickCondition.GamePadStick.Left, GamePadStickCondition.StickAxis.X, GamePadStickCondition.AxisDirection.Negative, 0),
        new GamePadCondition(GamePadButton.Left, 0)
-
    );
 
     public readonly ICondition Right = new AnyCondition(
@@ -40,5 +38,4 @@ public class MenuInputController
         new KeyboardCondition(Keys.Back),
         new GamePadCondition(GamePadButton.B, 0)
     );
-
 }

@@ -14,27 +14,29 @@ namespace SpiritKing.Scenes;
 public class TitleScreenScene : Scene
 {
     private readonly Label TitleText;
-    private readonly MenuButton StartBtn;
+    private readonly MenuButton NewGameBtn;
+    private readonly MenuButton LoadGameBtn;
     private readonly MenuButton SettingsBtn;
     private readonly MenuButton ExitBtn;
 
     private readonly MenuController _menuController;
 
     readonly ParticleController _bottomOfScreenParticles;
-    public override event Action<Scene> SceneSwitched;
 
     public TitleScreenScene(Game game) : base(game)
     {
         TitleText = new Label(game, "Posessed Will", Vector2.Zero, Color.DarkRed);
-        StartBtn = new MenuButton(game, new Point(0, 0), new Point(350, 0), "Start", 0);
+        NewGameBtn = new MenuButton(game, new Point(0, 0), new Point(350, 0), "New Game", 0);
+        LoadGameBtn = new MenuButton(game, new Point(0, 0), new Point(350, 0), "Load Game", 0);
         SettingsBtn = new MenuButton(game, new Point(0, 0), new Point(350, 0), "Settings", 0);
         ExitBtn = new MenuButton(game, new Point(0, 0), new Point(350, 0), "Exit", 0);
-        _menuController = new MenuController(new MenuButton[] { StartBtn, SettingsBtn, ExitBtn });
+        _menuController = new MenuController([NewGameBtn, LoadGameBtn, SettingsBtn, ExitBtn]);
 
-        StartBtn.Action = StartClicked;
+        NewGameBtn.Action = NewGameClicked;
+        LoadGameBtn.Action = LoadGameClicked;
         SettingsBtn.Action = SettingsClicked;
         ExitBtn.Action = ExitClicked;
-        StartBtn.Highlighted = true;
+        NewGameBtn.Highlighted = true;
         BackgroundColor = Color.Black;
         var screen = game.GraphicsDevice.Viewport;
         _bottomOfScreenParticles = new ParticleController(game.GraphicsDevice, new Vector2(screen.Width / 2, screen.Height));
@@ -80,9 +82,10 @@ public class TitleScreenScene : Scene
         MusicController.PlaySong(MusicController.OrganTheme, true);
 
         TitleText.Position = new Vector2((screen.Width - TitleText.STRING_SIZE.X) / 2, (screen.Height - TitleText.STRING_SIZE.Y) / 8);
-        StartBtn.Position = new Point((screen.Width - StartBtn.Size.X) / 2, 2 * (screen.Height - StartBtn.Size.Y) / 5);
-        SettingsBtn.Position = new Point((screen.Width - SettingsBtn.Size.X) / 2, 3 * (screen.Height - SettingsBtn.Size.Y) / 5);
-        ExitBtn.Position = new Point((screen.Width - ExitBtn.Size.X) / 2, 4 * (screen.Height - ExitBtn.Size.Y) / 5);
+        NewGameBtn.Position = new Point((screen.Width - NewGameBtn.Size.X) / 2, 2 * (screen.Height - NewGameBtn.Size.Y) / 5);
+        LoadGameBtn.Position = new Point((screen.Width - LoadGameBtn.Size.X) / 2, 3 * (screen.Height - LoadGameBtn.Size.Y) / 5);
+        SettingsBtn.Position = new Point((screen.Width - SettingsBtn.Size.X) / 2, 4 * (screen.Height - SettingsBtn.Size.Y) / 5);
+        ExitBtn.Position = new Point((screen.Width - ExitBtn.Size.X) / 2, 5 * (screen.Height - ExitBtn.Size.Y) / 5);
     }
 
     public override void Update(GameTime gameTime)
@@ -98,9 +101,15 @@ public class TitleScreenScene : Scene
         TitleText.Dispose();
     }
 
-    private void StartClicked()
+    private void NewGameClicked()
     {
-        SceneSwitched?.Invoke(new GameScene(Game));
+        base.OnSceneSwitched(new GameScene(Game, null));
+    }
+
+    private void LoadGameClicked()
+    {
+        var data = SaveDataController.LoadGameSaveAsync().Result;
+        base.OnSceneSwitched(new GameScene(Game, data));
     }
 
     private void SettingsClicked()
