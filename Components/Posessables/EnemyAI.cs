@@ -1,5 +1,5 @@
-﻿using MonoGame.Extended;
-using SpiritKing.Utils;
+﻿using Microsoft.Xna.Framework;
+using MonoGame.Extended;
 using System;
 using System.Threading;
 
@@ -17,7 +17,7 @@ public class EnemyAI : IDisposable
 
     public bool HeavyAttackActivated { get; set; }
     public bool NormalAttackActivated { get; set; }
-    public virtual CollisionShape EnemyAIFieldOfView { get; set; }
+    public virtual RectangleF EnemyAIFieldOfView { get; set; }
 
     public float PauseBeforeNormalAttack { get; set; } = 0.4f;
     public float PauseBeforeHeavyAttack { get; set; } = 1f;
@@ -73,12 +73,6 @@ public class EnemyAI : IDisposable
     {
         if (!disposedValue)
         {
-            if (disposing)
-            {
-
-                EnemyAIFieldOfView.Dispose();
-                EnemyAIFieldOfView = null;
-            }
             disposedValue = true;
         }
     }

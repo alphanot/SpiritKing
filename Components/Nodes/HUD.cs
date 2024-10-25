@@ -63,7 +63,7 @@ public class HUD : Interfaces.IDrawable, Interfaces.IUpdateable
         Posessable.UpdateHealthBar += SetCurrentHealth;
         Posessable.UpdateStaminaBar += SetCurrentStamina;
         Posessable.UpdatePosessCanActivate += SetPosessCanActivate;
-        PosessablesHandler.PosessableSwitched += SetHUD;
+        PosessablesController.PosessableSwitched += SetHUD;
 
         _healthFlashTimer = new GameTime();
     }

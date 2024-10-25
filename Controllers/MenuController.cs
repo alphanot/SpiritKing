@@ -1,13 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.Screens;
 using SpiritKing.Components.Nodes;
 using SpiritKing.Controllers.InputControllers;
+using System.Collections.Generic;
 
 namespace SpiritKing.Controllers;
 
 public class MenuController : Components.Interfaces.IUpdateable, Components.Interfaces.IDrawable
 {
-    public MenuButton[] Buttons;
+    private List<MenuButton> Buttons { get; set; } = [];
     private int currentBtnIndex;
 
     public int DrawOrder => 1;
@@ -16,13 +18,17 @@ public class MenuController : Components.Interfaces.IUpdateable, Components.Inte
 
     public int UpdateOrder => 1;
 
+    public Point Position { get; set; }
+
+    public Vector2 Size { get; set; }
+
     public bool Visible => true;
 
     private readonly MenuInputController _menuInputController = new();
-    public MenuController(MenuButton[] buttons)
+    public MenuController(Point position, Vector2 size)
     {
-        Buttons = buttons;
-        currentBtnIndex = 0;
+        Position = position;
+        Size = size;
     }
 
     public void Update(GameTime gameTime)
@@ -31,7 +37,7 @@ public class MenuController : Components.Interfaces.IUpdateable, Components.Inte
         {
             HighlightChanged(false);
             currentBtnIndex++;
-            if (currentBtnIndex >= Buttons.Length)
+            if (currentBtnIndex >= Buttons.Count)
             {
                 currentBtnIndex = 0;
             }
@@ -43,20 +49,15 @@ public class MenuController : Components.Interfaces.IUpdateable, Components.Inte
             currentBtnIndex--;
             if (currentBtnIndex < 0)
             {
-                currentBtnIndex = Buttons.Length - 1;
+                currentBtnIndex = Buttons.Count - 1;
             }
             HighlightChanged(true);
         }
 
         if (_menuInputController.Select.Pressed())
         {
-            Buttons[currentBtnIndex].Action?.Invoke();
+            Buttons[currentBtnIndex].Action?.Invoke(Buttons[currentBtnIndex]);
         }
-    }
-
-    private void HighlightChanged(bool hightlight)
-    {
-        Buttons[currentBtnIndex].Highlighted = hightlight;
     }
 
     public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
@@ -73,5 +74,33 @@ public class MenuController : Components.Interfaces.IUpdateable, Components.Inte
         {
             button.Dispose();
         }
+    }
+
+    public void SetMenuButtons(List<MenuButton> buttons)
+    {
+        currentBtnIndex = 0;
+        Buttons = buttons;
+        currentBtnIndex = 0;
+        foreach (var button in Buttons)
+        {
+            button.Highlighted = false;
+        }
+        HighlightChanged(true);
+        UpdateMenuButtonsAlignement();
+    }
+
+    public void UpdateMenuButtonsAlignement()
+    {
+        var lastBtnBottomBorder = Position.Y + 25;
+
+        foreach (var button in Buttons)
+        {
+            button.Position = new Point(Position.X + (((int)Size.X - button.Size.X) / 2), lastBtnBottomBorder);
+            lastBtnBottomBorder += button.Size.Y;
+        }
+    }
+    private void HighlightChanged(bool hightlight)
+    {
+        Buttons[currentBtnIndex].Highlighted = hightlight;
     }
 }

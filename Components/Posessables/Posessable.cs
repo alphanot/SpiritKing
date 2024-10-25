@@ -7,53 +7,57 @@ using MonoGame.Extended.Particles.Modifiers.Containers;
 using MonoGame.Extended.Particles.Modifiers.Interpolators;
 using MonoGame.Extended.Particles.Profiles;
 using MonoGame.Extended.Tweening;
+using SpiritKing.Components.Interfaces;
 using SpiritKing.Components.Nodes;
+using SpiritKing.Components.Nodes.Collectables;
 using SpiritKing.Components.States;
 using SpiritKing.Controllers;
 using SpiritKing.Controllers.InputControllers;
 using SpiritKing.Structs;
+using SpiritKing.Utils;
 using System;
+using System.Collections.Generic;
 
 namespace SpiritKing.Components.Posessables;
 
-public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
+public abstract class Posessable : SpatialEntity, Interfaces.IDrawable, Interfaces.IUpdateable
 {
     public int DrawOrder { get; set; } = 1;
     public bool IsHighlighted { get; set; } = false;
     public Stats Stats { get; set; }
-    public virtual PlayerState PlayerState { get; set; }
-    public Vector2 Position
-    {
-        get { return position; }
-        set { position = value; }
-    }
-    Vector2 position;
+    public PlayerState PlayerState { get; set; }
+
     public Vector2 Velocity
     {
         get { return velocity; }
         set { velocity = value; }
     }
     Vector2 velocity;
-    public virtual CollisionShape CollisionShape { get; set; }
-    public CollisionShape PosessableCollider { get; set; }
+
+    public RectangleF PosessableCollider { get; set; }
     public Texture2D Sprite { get; set; }
 
-    public static event Action<Posessable> PosessableDied;
+    public static event Action<Posessable>? PosessableDied; // TODO: possibly stupid(might be able to do it all through controller
 
-    public static event Action<Attack> PlayerAttacked;
+    public static event Action<Attack>? PlayerAttacked; // TODO: stupid.
 
-    public static event Action<float> UpdateHealthBar;
+    public static event Action<float>? UpdateHealthBar; // TODO: should be name as an event from the context of this class, so something like "HealthChanged"
 
-    public static event Action<float, bool> UpdateStaminaBar;
+    public static event Action<float, bool>? UpdateStaminaBar;
 
-    public static event Action<bool> UpdatePosessCanActivate;
+    public static event Action<bool>? UpdatePosessCanActivate;
+
+    public static event Func<ISpatialEntity, IEnumerable<ISpatialEntity>>? GetCurrentCollisions;
+    public static event Action<ICollectable>? PickedUpCollectible;
 
     public const float POSESS_TIMER_WAIT_TIME = 3f;
+
+    private IEnumerable<ISpatialEntity> _currentCollisions = [];
 
     public bool IsPosessed { get; set; } = false;
     public Line PosessRay { get; set; }
 
-    public virtual Attack NormalAttack { get; set; }
+    public abstract Attack NormalAttack { get; set; }
     public PosessableInputController InputController { get; set; }
 
     public bool Enabled { get; set; } = true;
@@ -77,7 +81,6 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
     private float _jumpBufferCounter;
 
     private EnemyHealthBar _enemyHealthBar;
-    private readonly GameWorldHandler _worldHandler;
 
     private float _stunTimer;
     private readonly float _STUN_TIMER_MAX_TIME = 0.2f;
@@ -87,11 +90,10 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
 
     private DamageTextController DamageTextController { get; set; }
 
-    protected Posessable(Game game, Stats stats, GameWorldHandler gameWorld, bool isPosessed = false)
+    protected Posessable(Game game, Stats stats, bool isPosessed = false)
     {
         DamageTextController = new DamageTextController(game);
         EnemyAI = new();
-        _worldHandler = gameWorld;
         InputController = new PosessableInputController();
         IsPosessed = isPosessed;
         Stats = stats;
@@ -102,10 +104,11 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         PlayerState = new PlayerState();
         Position = new Vector2(100, 100);
         Velocity = new Vector2(0, 0);
-        CollisionShape = new CollisionShape(Position.X, Position.Y, Stats.Width, Stats.Height);
 
-        PosessableCollider = new CollisionShape(Position.X - 100, Position.Y - 100, Stats.Width + 200, Stats.Height + 200);
-        EnemyAI.EnemyAIFieldOfView = new CollisionShape(Position.X - 400, Position.Y - 400, Stats.Width + 800, Stats.Height + 800);
+        Size = new(Stats.Width, Stats.Height);
+
+        PosessableCollider = new RectangleF(Position.X - 100, Position.Y - 100, Stats.Width + 200, Stats.Height + 200);
+        EnemyAI.EnemyAIFieldOfView = new RectangleF(Position.X - 400, Position.Y - 400, Stats.Width + 800, Stats.Height + 800);
 
         PlayerAttacked += Signal_PlayerAttacked;
         PosessRay = new Line(new Point2(Position.X + (Stats.Width / 2), Position.Y + (Stats.Height / 2)), new Point2(400, 1));
@@ -149,7 +152,7 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
 
     public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
     {
-        spriteBatch.Draw(Sprite, Position, CollisionShape.Shape.ToRectangle(), Stats.Color);
+        spriteBatch.Draw(Sprite, Position, Bounds, Stats.Color);
         _particleController.Draw(gameTime, spriteBatch);
         if (IsPosessed)
         {
@@ -167,54 +170,28 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
 
         if (NormalAttack.IsActive)
         {
-            spriteBatch.Draw(Sprite, NormalAttack.CollisionShape.Shape.Position, NormalAttack.CollisionShape.Shape.ToRectangle(), Color.White);
+            spriteBatch.Draw(Sprite, NormalAttack.Position, NormalAttack.Bounds, Color.White);
         }
         DamageTextController.Draw(gameTime, spriteBatch);
 
     }
 
-    public void Dispose()
+    void IDisposable.Dispose()
     {
         _particleController.Dispose();
-        _particleController = null;
-
         PlayerAttacked -= Signal_PlayerAttacked;
-
         IsPosessed = false;
-
-        Stats = null;
-
         Sprite.Dispose();
-        Sprite = null;
-
         _outlineRect.Dispose();
-        _outlineRect = null;
-
-        PlayerState = null;
-
         Position = Vector2.Zero;
-
         Velocity = Vector2.Zero;
-
-        CollisionShape.Dispose();
         EnemyAI.Dispose(true);
-        CollisionShape = null;
-
-        PosessableCollider.Dispose();
-        PosessableCollider = null;
-
-        PosessRay = null;
-
-        _exhaustionTimer = null;
-
-        _posessCooldownTimer = null;
-
+        PosessableCollider = RectangleF.Empty;
         _enemyHealthBar.Dispose();
-        _enemyHealthBar = null;
         DamageTextController.Dispose();
     }
 
-    public void Update(GameTime gameTime)
+    public async void Update(GameTime gameTime)
     {
         DamageTextController.Update(gameTime);
         var seconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -230,6 +207,7 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
         HandleStamina(seconds);
         UpdatePositionFromVelocity(seconds);
         MoveChildren(Position);
+        _currentCollisions = GetCurrentCollisions?.Invoke(this) ?? [];
         ResolveCollisions();
         MoveChildren(Position);
         if (IsPosessed)
@@ -485,21 +463,20 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
 
     private void MoveChildren(Vector2 _position)
     {
-        CollisionShape.SetPosition(_position);
-        PosessableCollider.SetPosition(new Vector2(Position.X - 100, Position.Y - 100));
+        PosessableCollider = PosessableCollider with { Position = new Vector2(Position.X - 100, Position.Y - 100) };
         _particleController.SetPosition(new Vector2(_position.X + (Stats.Width / 2), _position.Y + Stats.Height));
         PosessRay.Position = new Point2(Position.X + (Stats.Width / 2), Position.Y + (Stats.Height / 2));
-        EnemyAI.EnemyAIFieldOfView.SetPosition(new Vector2(Position.X - 400, Position.Y - 400));
+        EnemyAI.EnemyAIFieldOfView = EnemyAI.EnemyAIFieldOfView with { Position = new Vector2(Position.X - 400, Position.Y - 400) };
 
         _enemyHealthBar.Position = new Vector2(Position.X, Position.Y - 10);
 
         if (PlayerState.LastDirection == PlayerState.LastLookState.Left)
         {
-            NormalAttack.CollisionShape.SetPosition(new Vector2(Position.X - NormalAttack.CollisionShape.Shape.Width, Position.Y + (Stats.Height / 2)));
+            NormalAttack.Position = new Vector2(Position.X - NormalAttack.Bounds.Width, Position.Y + (Stats.Height / 2));
         }
         else if (PlayerState.LastDirection == PlayerState.LastLookState.Right)
         {
-            NormalAttack.CollisionShape.SetPosition(new Vector2(Position.X + Stats.Width, Position.Y + (Stats.Height / 2)));
+            NormalAttack.Position = new Vector2(Position.X + Stats.Width, Position.Y + (Stats.Height / 2));
         }
         // highlight
         _outlineRect.Position = _position;
@@ -509,43 +486,55 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
     {
         PlayerState.CollidingY = PlayerState.CollidingYState.None;
         PlayerState.CollidingX = PlayerState.CollidingXState.None;
-        foreach (var platform in _worldHandler.Platforms)
+        foreach (var entity in _currentCollisions)
         {
-            RectangleF intersectionArea = CollisionShape.Shape.Intersection(platform.CollisionShape.Shape);
-            if (intersectionArea.IsEmpty)
+            if (entity is Platform)
             {
-                continue;
+                var intersectionArea = Bounds.Intersection(entity.Bounds);
+                if (intersectionArea.Height > intersectionArea.Width)
+                {
+                    if (Bounds.IsCollidingLeft(entity.Bounds))
+                    {
+                        velocity.X = 0;
+                        Position = Position with { X = entity.Bounds.Right };
+                        PlayerState.CollidingX = PlayerState.CollidingXState.Left;
+                    }
+                    else if (Bounds.IsCollidingRight(entity.Bounds))
+                    {
+                        velocity.X = 0;
+                        Position = Position with { X = entity.Bounds.Left - Bounds.Width };
+                        PlayerState.CollidingX = PlayerState.CollidingXState.Right;
+                    }
+                }
+                else
+                {
+                    if (Bounds.IsCollidingBottom(entity.Bounds))
+                    {
+                        velocity.Y = 0;
+                        Position = Position with { Y = entity.Bounds.Top - Bounds.Height };
+                        PlayerState.CollidingY = PlayerState.CollidingYState.Ground;
+                    }
+                    else if (Bounds.IsCollidingTop(entity.Bounds))
+                    {
+                        velocity.Y = 0;
+                        Position = Position with { Y = entity.Bounds.Bottom };
+                        PlayerState.CollidingY = PlayerState.CollidingYState.Ceiling;
+                    }
+                }
             }
+            else if (entity is HealthItem healthItem)
+            {
+                if (Stats.Health + healthItem.HealthValue < Stats.MaxHealth)
+                {
+                    Stats.Health += healthItem.HealthValue;
+                }
+                else
+                {
+                    Stats.Health = Stats.MaxHealth;
+                }
 
-            if (intersectionArea.Height > intersectionArea.Width)
-            {
-                if (CollisionShape.IsCollidingLeft(platform.CollisionShape))
-                {
-                    velocity.X = 0;
-                    position.X = platform.CollisionShape.Shape.Right;
-                    PlayerState.CollidingX = PlayerState.CollidingXState.Left;
-                }
-                else if (CollisionShape.IsCollidingRight(platform.CollisionShape))
-                {
-                    velocity.X = 0;
-                    position.X = platform.CollisionShape.Shape.Left - CollisionShape.Shape.Width;
-                    PlayerState.CollidingX = PlayerState.CollidingXState.Right;
-                }
-            }
-            else
-            {
-                if (CollisionShape.IsCollidingBottom(platform.CollisionShape))
-                {
-                    velocity.Y = 0;
-                    position.Y = platform.CollisionShape.Shape.Top - CollisionShape.Shape.Height;
-                    PlayerState.CollidingY = PlayerState.CollidingYState.Ground;
-                }
-                else if (CollisionShape.IsCollidingTop(platform.CollisionShape))
-                {
-                    velocity.Y = 0;
-                    position.Y = platform.CollisionShape.Shape.Bottom;
-                    PlayerState.CollidingY = PlayerState.CollidingYState.Ceiling;
-                }
+                UpdateHealthBar?.Invoke(Stats.Health);
+                PickedUpCollectible?.Invoke(healthItem);
             }
         }
     }
@@ -624,10 +613,9 @@ public class Posessable : Interfaces.IDrawable, Interfaces.IUpdateable
 
     private void Signal_PlayerAttacked(Attack attack)
     {
-        var attackPosition = attack.CollisionShape.GetPosition();
-        if (CollisionShape.IsColliding(attack.CollisionShape))
+        if (Bounds.Intersects(attack.Bounds))
         {
-            var knockbackDirection = attackPosition.X > Position.X ? -1 : 1;
+            var knockbackDirection = attack.Position.X > Position.X ? -1 : 1;
             ReceiveDamage(attack.BaseDamage, knockbackDirection, attack.KnockBack);
         }
     }

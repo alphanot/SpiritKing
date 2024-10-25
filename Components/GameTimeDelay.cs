@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SpiritKing.Utils;
+namespace SpiritKing.Components;
 public class GameTimeDelay : IDisposable
 {
     private readonly Action _callback;

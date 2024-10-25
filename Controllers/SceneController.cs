@@ -24,7 +24,7 @@ public class SceneController
     {
         Scenes.Sort((a, b) => a.DrawOrder.CompareTo(b.DrawOrder));
     }
-
+    // TODO: stupid.
     public virtual void SetScene(Scene scene)
     {
         if (CurrentScene != null)
@@ -52,7 +52,9 @@ public class SceneController
 
     private void Scene_SwitchScene(Scene nextScene)
     {
+        CurrentScene.SceneSwitched -= Scene_SwitchScene;
         CurrentScene.Dispose();
         CurrentScene = nextScene;
+        CurrentScene.SceneSwitched += Scene_SwitchScene;
     }
 }

@@ -1,12 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SpiritKing.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace SpiritKing.Components.Posessables;
 
-public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
+public class PosessablesController : Interfaces.IDrawable, Interfaces.IUpdateable
 {
     public int DrawOrder => 1;
 
@@ -24,17 +25,17 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
 
     public static event Action<Posessable> PosessableSwitched;
 
-    public PosessablesHandler()
+    public PosessablesController()
     {
         Posessable.PosessableDied += RemovePosessable;
         Posessables = new List<Posessable>();
     }
 
-    public void InitializePosessables(Game game, GameWorldHandler gameWorld)
+    public void InitializePosessables(Game game)
     {
-        Posessables.Add(new Goblin(game, new Vector2(0, 0), gameWorld));
-        //Posessables.Add(new Gargoyle(game, new Vector2(1000, 0), gameWorld));
-        Posessables.Add(new Hound(game, new Vector2(600, 0), gameWorld));
+        Posessables.Add(new Goblin(game, new Vector2(0, 0)));
+        //Posessables.Add(new Gargoyle(game, new Vector2(1000, 0)));
+        Posessables.Add(new Hound(game, new Vector2(600, 0)));
     }
 
     public Posessable InitializePlayer()
@@ -48,7 +49,7 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
     {
         foreach (var p in Posessables)
         {
-            p.Dispose();
+            ((IDisposable)p).Dispose();
         }
     }
 
@@ -102,7 +103,7 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
         enemy.EnemyAI.WalkAroundAndSwitchDirections.Update(gameTime);
 
         // Check for aggro
-        if (enemy.EnemyAI.EnemyAIFieldOfView.Shape.Intersects(Player.CollisionShape.Shape))
+        if (enemy.EnemyAI.EnemyAIFieldOfView.Intersects(Player.Bounds))
         {
             if (enemy.OtherPosessableIsWithinAttackingRange(Player))
             {
@@ -122,7 +123,7 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
         foreach (var p in Posessables)
         {
             p.IsHighlighted = false;
-            if (Player.PosessRay.Intersects(p.PosessableCollider.Shape) && !p.CollisionShape.Shape.Contains(Player.PosessRay.Position))
+            if (Player.PosessRay.Intersects(p.Bounds) && !p.Bounds.Contains(Player.PosessRay.Position))
             {
                 if (closestPosessable == null)
                 {
@@ -154,7 +155,7 @@ public class PosessablesHandler : Interfaces.IDrawable, Interfaces.IUpdateable
         else
         {
             Posessables.Remove(posessable);
-            posessable.Dispose();
+            ((IDisposable)posessable).Dispose();
         }
     }
 }
@@ -170,7 +171,7 @@ public static class PosessableExtensions
         var otherCenterPoint = other.Position.X + halfOtherWidth;
 
         return current.Position.X < other.Position.X
-            ? currentCenterPoint + halfCurrentWidth + current.NormalAttack.CollisionShape.Shape.Width > otherCenterPoint - halfOtherWidth
-            : currentCenterPoint - halfCurrentWidth - current.NormalAttack.CollisionShape.Shape.Width < otherCenterPoint - halfOtherWidth;
+            ? currentCenterPoint + halfCurrentWidth + current.NormalAttack.Bounds.Width > otherCenterPoint - halfOtherWidth
+            : currentCenterPoint - halfCurrentWidth - current.NormalAttack.Bounds.Width < otherCenterPoint - halfOtherWidth;
     }
 }
