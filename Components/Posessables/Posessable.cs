@@ -37,11 +37,11 @@ public abstract class Posessable : SpatialEntity, Interfaces.IDrawable, Interfac
     public RectangleF PosessableCollider { get; set; }
     public Texture2D Sprite { get; set; }
 
-    public static event Action<Posessable>? PosessableDied; // possibly stupid(might be able to do it all through controller
+    public static event Action<Posessable>? PosessableDied; // TODO: possibly stupid(might be able to do it all through controller
 
-    public static event Action<Attack>? PlayerAttacked; // stupid.
+    public static event Action<Attack>? PlayerAttacked; // TODO: stupid.
 
-    public static event Action<float>? UpdateHealthBar;
+    public static event Action<float>? UpdateHealthBar; // TODO: should be name as an event from the context of this class, so something like "HealthChanged"
 
     public static event Action<float, bool>? UpdateStaminaBar;
 

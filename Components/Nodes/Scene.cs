@@ -28,11 +28,11 @@ public abstract class Scene : Interfaces.IDrawable, Interfaces.IUpdateable
 
     public Color BackgroundColor { get; set; }
 
-    public bool Enabled => true;
+    public bool Enabled { get; protected set; } = true;
 
     public int UpdateOrder => 1;
 
-    public bool Visible => true;
+    public bool Visible { get; protected set; } = true;
 
     public Texture2D _logo;
 
@@ -50,7 +50,10 @@ public abstract class Scene : Interfaces.IDrawable, Interfaces.IUpdateable
     {
         foreach (var node in UpdateableNodes)
         {
-            node.Update(gameTime);
+            if (node.Enabled)
+            {
+                node.Update(gameTime);
+            }
         }
     }
 
@@ -59,10 +62,13 @@ public abstract class Scene : Interfaces.IDrawable, Interfaces.IUpdateable
         Game.GraphicsDevice.Clear(BackgroundColor);
         var transformMatrix = Camera.GetViewMatrix();
         spriteBatch.Begin(transformMatrix: transformMatrix);
-
+        
         foreach (var node in DrawableNodes)
         {
-            node.Draw(gameTime, spriteBatch);
+            if (node.Visible)
+            {
+                node.Draw(gameTime, spriteBatch);
+            }
         }
         spriteBatch.End();
     }
@@ -93,5 +99,6 @@ public abstract class Scene : Interfaces.IDrawable, Interfaces.IUpdateable
         MusicController.Unload();
     }
 
+    //TODO: this is stupid, at least change name.
     protected virtual void OnSceneSwitched(Scene scene) => SceneSwitched?.Invoke(scene);
 }

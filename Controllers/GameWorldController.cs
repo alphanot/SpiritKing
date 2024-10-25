@@ -11,8 +11,6 @@ using System.Collections.Generic;
 namespace SpiritKing.Controllers;
 public class GameWorldController : Components.Interfaces.IUpdateable, Components.Interfaces.IDrawable
 {
-    readonly Game Game;
-
     public List<Platform> Platforms { get; set; }
 
     public List<ICollectable> Collectables { get; set; }
@@ -23,7 +21,6 @@ public class GameWorldController : Components.Interfaces.IUpdateable, Components
     {
 
         QuadTree = new(new(0, 0, 50000, 50000), 5, 5);
-        Game = game;
 
         Platforms =
         [

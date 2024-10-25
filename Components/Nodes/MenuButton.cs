@@ -1,12 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 
 namespace SpiritKing.Components.Nodes;
 
 public class MenuButton : Interfaces.IDrawable
 {
-    public string Text { get; set; }
+    public virtual string Text { get; set; }
+
+    public object? Metadata { get; set; }
+
+    public List<MenuButton> ChildButtons { get; set; } = [];
 
     public Point Position
     {
@@ -38,20 +43,20 @@ public class MenuButton : Interfaces.IDrawable
 
     private Vector2 _STRINGSIZE = Vector2.Zero;
 
-    public virtual Action Action { get; set; }
+    public virtual Action<MenuButton>? Action { get; set; }
     public int Padding { get; set; }
 
     public int DrawOrder => 1;
 
     public bool Visible => true;
 
-    public MenuButton(Game game, Point position, Point size, string text, int padding = 25)
+    public MenuButton(Game game, Point position, Point size, string text)
     {
         _font = game.Content.Load<SpriteFont>("Fonts/LabelText");
         texture = new Texture2D(game.GraphicsDevice, 1, 1);
         texture.SetData(new[] { Color.White });
 
-        Padding = padding;
+        Padding = 0;
         Position = position;
         Text = text;
 
@@ -59,7 +64,7 @@ public class MenuButton : Interfaces.IDrawable
 
         var newSize = new Point((int)(size.X < _STRINGSIZE.X ? _STRINGSIZE.X : size.X), (int)(size.Y < _STRINGSIZE.Y ? _STRINGSIZE.Y : size.Y));
 
-        Size = new Point(newSize.X + padding * 2, newSize.Y + padding * 2);
+        Size = new Point(newSize.X + Padding * 2, newSize.Y + Padding * 2);
         outlineRect = new OutlineRectF(texture, Position.X, Position.Y, Size.X, Size.Y, 4);
     }
 
