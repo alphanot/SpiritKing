@@ -23,5 +23,5 @@
     - **Run**: Left Shift
     - **Jump**: Spacebar
     - **Attack**: W
-    - **Aim**: Not implemented
-    - **Posess**: Right Not Implemented
+    - **Aim**: *Not implemented
+    - **Posess**: *Not Implemented
