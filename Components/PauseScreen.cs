@@ -17,13 +17,15 @@ public class PauseScreen : Interfaces.IUpdateable, Interfaces.IDrawable
 
     public bool Paused { get; set; } = false;
     
-    public static event Action<MenuButton>? ExitBtnClicked;
+    public static event Action<MenuButton>? SaveAndExitBtnClicked;
+
+    public static event Action<MenuButton>? SaveBtnClicked;
 
     private MenuController MenuController;
 
     private MenuButton ResumeBtn;
     private MenuButton SaveBtn;
-    private MenuButton ExitBtn;
+    private MenuButton SaveAndExitBtn;
 
     private Color BackgroundColor;
 
@@ -42,14 +44,17 @@ public class PauseScreen : Interfaces.IUpdateable, Interfaces.IDrawable
             Action = _ => InvertPaused()
         };
 
-        SaveBtn = new(game, new(0, 0), new(400, 0), "Save");
-
-        ExitBtn = new(game, new(0, 0), new(400, 0), "Exit")
+        SaveBtn = new(game, new(0, 0), new(400, 0), "Save")
         {
-            Action = btn => ExitBtnClicked?.Invoke(btn)
+            Action = btn => SaveBtnClicked?.Invoke(btn)
         };
 
-        MenuController.SetMenuButtons([ResumeBtn, ExitBtn]);
+        SaveAndExitBtn = new(game, new(0, 0), new(400, 0), "Save and Exit")
+        {
+            Action = btn => SaveAndExitBtnClicked?.Invoke(btn)
+        };
+
+        MenuController.SetMenuButtons([ResumeBtn, SaveBtn, SaveAndExitBtn]);
         MenuController.UpdateMenuButtonsAlignement();
         BackgroundTexture = new Texture2D(game.GraphicsDevice, 1, 1);
         BackgroundTexture.SetData(new[] { Color.White });

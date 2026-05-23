@@ -17,6 +17,25 @@ public class SaveDataController()
 
     public TimeOnly? LastLoadTime { get; set; }
 
+    // Fixed set of three save slots. No custom names.
+    public static readonly string[] SlotFileNames = ["save1.dat", "save2.dat", "save3.dat"];
+
+    /// <summary>
+    /// Returns the three fixed save slots, with IsOccupied reflecting whether
+    /// the corresponding file currently exists on disk.
+    /// </summary>
+    public List<SaveSlot> GetSaveSlots()
+    {
+        var slots = new List<SaveSlot>(SlotFileNames.Length);
+        for (int i = 0; i < SlotFileNames.Length; i++)
+        {
+            var fileName = SlotFileNames[i];
+            var exists = File.Exists($"{SavesRootPath}{fileName}");
+            slots.Add(new SaveSlot(exists, $"Save {i + 1}", 0, fileName));
+        }
+        return slots;
+    }
+
     public async Task SaveGameAsync(SaveData data, string? saveName = null)
     {
         CurrentSaveFileName = saveName ?? CurrentSaveFileName;
@@ -49,7 +68,6 @@ public class SaveDataController()
         {
             Directory.CreateDirectory(SettingsRootPath);
         }
-        settingsData.SaveSlots = GetSaveFileNames().Select(x => new SaveSlot(true, "name", 0, x)).ToList();
 
         using var fs = File.Create($"{SettingsRootPath}{SettingsFileName}");
 

@@ -6,8 +6,13 @@ using System.Text.Json;
 namespace SpiritKing.Data;
 public record SaveData
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        IncludeFields = true
+    };
+
     public Vector2 PlayerPosition { get; set; } = new(0, 0);
-    public byte[] ToByteArray() => JsonSerializer.SerializeToUtf8Bytes(this);
+    public byte[] ToByteArray() => JsonSerializer.SerializeToUtf8Bytes(this, JsonOptions);
 
     public SaveData()
     { }
@@ -16,8 +21,10 @@ public record SaveData
     {
         try
         {
-            var saveData = JsonSerializer.Deserialize<SaveData>(data)
+            var saveData = JsonSerializer.Deserialize<SaveData>(data, JsonOptions)
                 ?? throw new JsonException("Save data was not able to be written. Deserialization of file returned a null object.");
+
+            PlayerPosition = saveData.PlayerPosition;
         }
         catch (Exception ex)
         {

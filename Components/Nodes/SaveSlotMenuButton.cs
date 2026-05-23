@@ -15,7 +15,7 @@ public class SaveSlotMenuButton : MenuButton
     {
         get
         {
-            return IsOccupied ? _text : "Empty";
+            return IsOccupied ? _text : $"{_text} (empty)";
         }
 
         set

@@ -10,6 +10,7 @@ using SpiritKing.Components.Posessables;
 using SpiritKing.Controllers;
 using SpiritKing.Data;
 using SpiritKing.Utils;
+using System.Diagnostics;
 
 namespace SpiritKing.Scenes;
 
@@ -27,13 +28,16 @@ public class GameScene : Scene
 
     private SaveData _data;
 
+    private string? _saveFileName;
+
     private PauseScreen _pauseScreen;
 
     private Vector2 centerOfScreen;
-    public GameScene(Game game, SaveData? data) : base(game)
+    public GameScene(Game game, SaveData? data, string? saveFileName = null) : base(game)
     {
         _pauseScreen = new(game);
         _data = data ?? new();
+        _saveFileName = saveFileName;
         Name = "Game Scene";
 
         PosessableController = new PosessablesController();
@@ -41,6 +45,12 @@ public class GameScene : Scene
 
         PosessableController.InitializePosessables(game);
         PosessableController.InitializePlayer();
+
+        // Restore player position from the loaded save, if there was one.
+        if (data != null)
+        {
+            PosessableController.Player.Position = _data.PlayerPosition;
+        }
 
         Camera.LookAt(PosessableController.Player.Position);
         _hud = new HUD(game, PosessableController.Player);
@@ -53,7 +63,8 @@ public class GameScene : Scene
         ControllerUtils.BumpController(0);
         MusicController.PlaySong(MusicController.Ambience, true);
         centerOfScreen = new Vector2(Game.GraphicsDevice.Viewport.Width / 2f, Game.GraphicsDevice.Viewport.Height / 2f);
-        PauseScreen.ExitBtnClicked += PauseMenu_ExitBtnClicked;
+        PauseScreen.SaveAndExitBtnClicked += PauseMenu_SaveAndExitBtnClicked;
+        PauseScreen.SaveBtnClicked += PauseMenu_SaveBtnClicked;
     }
 
     public override void Update(GameTime gameTime)
@@ -68,13 +79,6 @@ public class GameScene : Scene
             _tweener.Update(gameTime.GetElapsedSeconds());
 
             _hud.SetPosition(Camera.Position);
-
-            //if (ExitKey.Pressed())
-            //{
-            //    // query game and update `_data`
-            //    _data.PlayerPosition = PosessableController.Player.Position;
-            //    SaveDataController.SaveGameAsync(_data).Wait();
-            //}
         }
         else
         {
@@ -88,5 +92,23 @@ public class GameScene : Scene
         }
     }
 
-    public void PauseMenu_ExitBtnClicked(MenuButton menuButton) => base.OnSceneSwitched(new TitleScreenScene(Game));
+    public void PauseMenu_SaveBtnClicked(MenuButton menuButton) => SaveCurrentGame();
+
+    public void PauseMenu_SaveAndExitBtnClicked(MenuButton menuButton)
+    {
+        SaveCurrentGame();
+        base.OnSceneSwitched(new TitleScreenScene(Game));
+    }
+
+    private void SaveCurrentGame()
+    {
+        if (string.IsNullOrEmpty(_saveFileName))
+        {
+            Debug.WriteLine("Save attempted but no save file name was provided for this game.");
+            return;
+        }
+
+        _data.PlayerPosition = PosessableController.Player.Position;
+        SaveDataController.SaveGameAsync(_data, _saveFileName).Wait();
+    }
 }
