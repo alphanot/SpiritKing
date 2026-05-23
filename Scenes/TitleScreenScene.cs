@@ -10,7 +10,6 @@ using SpiritKing.Data;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using static SpiritKing.Data.SettingsData;
 
 namespace SpiritKing.Scenes;
 
@@ -26,6 +25,8 @@ public class TitleScreenScene : Scene
     {
         _settingsData = SaveDataController.LoadGameSettingsAsync().Result;
         var screen = game.GraphicsDevice.Viewport;
+
+        MusicController.PlaySong(MusicController.OrganTheme, true);
 
         if (_settingsData == null)
         {
