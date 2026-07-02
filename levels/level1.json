@@ -1,0 +1,25 @@
+{
+  "Name": "Level 1",
+  "PlayerSpawnPosition": {
+    "X": 100,
+    "Y": 0
+  },
+  "Platforms": [
+    { "Position": { "X": 350, "Y": 500 }, "Size": { "X": 600, "Y": 50 } },
+    { "Position": { "X": 250, "Y": 300 }, "Size": { "X": 600, "Y": 50 } },
+    { "Position": { "X": 50,  "Y": 600 }, "Size": { "X": 600, "Y": 50 } },
+    { "Position": { "X": 200, "Y": 0   }, "Size": { "X": 100, "Y": 100 } },
+    { "Position": { "X": 0,   "Y": 100 }, "Size": { "X": 1000, "Y": 100 } },
+    { "Position": { "X": 1000,"Y": 800 }, "Size": { "X": 1000, "Y": 50 } },
+    { "Position": { "X": 3050,"Y": 305 }, "Size": { "X": 500,  "Y": 50 } }
+  ],
+  "Enemies": [
+    { "Type": "Goblin", "Position": { "X": 0,   "Y": 0 } },
+    { "Type": "Hound",  "Position": { "X": 600, "Y": 0 } }
+  ],
+  "Collectibles": [
+    { "Type": "HealthItem", "Position": { "X": 100, "Y": 0 }, "Value": 10 }
+  ],
+  "WorldWidth": 50000,
+  "WorldHeight": 50000
+}

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using SpiritKing.Components.Interfaces;
 using System;
@@ -39,7 +40,7 @@ public class QuadTree
             throw new ArgumentException("Entity does not fit within Quad Tree Bounds.", nameof(entity));
         }
 
-        if (_entities.Count >= _maximumNodes && _maximumDivisions <= 0 && !_isDivided)
+        if (_entities.Count >= _maximumNodes && _maximumDivisions > 0 && !_isDivided)
         {
             Split();
         }
@@ -128,12 +129,26 @@ public class QuadTree
     {
         if (_isDivided)
         {
-            _entities.AddRange(_topLeft!._entities);
-            _entities.AddRange(_topRight!._entities);
-            _entities.AddRange(_bottomLeft!._entities);
-            _entities.AddRange(_bottomRight!._entities);
+            _entities.AddRange(_topLeft!.CollectAllEntities());
+            _entities.AddRange(_topRight!.CollectAllEntities());
+            _entities.AddRange(_bottomLeft!.CollectAllEntities());
+            _entities.AddRange(_bottomRight!.CollectAllEntities());
             _topLeft = _topRight = _bottomLeft = _bottomRight = null;
+            _isDivided = false;
         }
+    }
+
+    private IEnumerable<ISpatialEntity> CollectAllEntities()
+    {
+        var result = new List<ISpatialEntity>(_entities);
+        if (_isDivided)
+        {
+            result.AddRange(_topLeft!.CollectAllEntities());
+            result.AddRange(_topRight!.CollectAllEntities());
+            result.AddRange(_bottomLeft!.CollectAllEntities());
+            result.AddRange(_bottomRight!.CollectAllEntities());
+        }
+        return result;
     }
 
     private void Split()
@@ -142,8 +157,10 @@ public class QuadTree
         _topRight = CreateChild(Bounds.Center.X, Bounds.Top);
         _bottomLeft = CreateChild(Bounds.Left, Bounds.Center.Y);
         _bottomRight = CreateChild(Bounds.Center.X, Bounds.Center.Y);
+        _isDivided = true;
 
-        var entities = _entities.AsReadOnly();
+        var entities = _entities.ToList();
+        _entities.Clear();
 
         foreach (var entity in entities)
         {
@@ -151,7 +168,10 @@ public class QuadTree
             if (containingChild != null)
             {
                 containingChild.Insert(entity);
-                _entities.Remove(entity);
+            }
+            else
+            {
+                _entities.Add(entity);
             }
         }
     }
@@ -178,4 +198,23 @@ public class QuadTree
     }
 
     private QuadTree CreateChild(int x, int y) => new(new(x, y, Bounds.Width / 2, Bounds.Height / 2), _maximumNodes, _maximumDivisions - 1);
+
+#if DEBUG
+    public void DebugDraw(SpriteBatch spriteBatch, Texture2D pixel)
+    {
+        var color = new Color(0, 255, 0, 60);
+        spriteBatch.Draw(pixel, new Rectangle(Bounds.Left, Bounds.Top, Bounds.Width, 1), color);
+        spriteBatch.Draw(pixel, new Rectangle(Bounds.Left, Bounds.Bottom, Bounds.Width, 1), color);
+        spriteBatch.Draw(pixel, new Rectangle(Bounds.Left, Bounds.Top, 1, Bounds.Height), color);
+        spriteBatch.Draw(pixel, new Rectangle(Bounds.Right, Bounds.Top, 1, Bounds.Height), color);
+
+        if (_isDivided)
+        {
+            _topLeft!.DebugDraw(spriteBatch, pixel);
+            _topRight!.DebugDraw(spriteBatch, pixel);
+            _bottomLeft!.DebugDraw(spriteBatch, pixel);
+            _bottomRight!.DebugDraw(spriteBatch, pixel);
+        }
+    }
+#endif
 }

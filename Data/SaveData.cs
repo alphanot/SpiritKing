@@ -12,6 +12,8 @@ public record SaveData
     };
 
     public Vector2 PlayerPosition { get; set; } = new(0, 0);
+    public string LevelFileName { get; set; } = "level1.json";
+
     public byte[] ToByteArray() => JsonSerializer.SerializeToUtf8Bytes(this, JsonOptions);
 
     public SaveData()
@@ -25,6 +27,7 @@ public record SaveData
                 ?? throw new JsonException("Save data was not able to be written. Deserialization of file returned a null object.");
 
             PlayerPosition = saveData.PlayerPosition;
+            LevelFileName = saveData.LevelFileName;
         }
         catch (Exception ex)
         {

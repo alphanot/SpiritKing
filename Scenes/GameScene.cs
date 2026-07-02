@@ -32,6 +32,12 @@ public class GameScene : Scene
 
     private PauseScreen _pauseScreen;
 
+#if DEBUG
+    private bool _debugDrawQuadTree = false;
+    private readonly ICondition _debugQuadTreeToggle = new KeyboardCondition(Keys.F1);
+    private Texture2D _debugPixel;
+#endif
+
     private Vector2 centerOfScreen;
     public GameScene(Game game, SaveData? data, string? saveFileName = null) : base(game)
     {
@@ -40,17 +46,18 @@ public class GameScene : Scene
         _saveFileName = saveFileName;
         Name = "Game Scene";
 
-        PosessableController = new PosessablesController();
-        GameWorldController = new GameWorldController(game);
+        var levelData = LevelController.LoadLevelAsync(_data.LevelFileName).GetAwaiter().GetResult();
 
-        PosessableController.InitializePosessables(game);
+        PosessableController = new PosessablesController();
+        GameWorldController = new GameWorldController(game, levelData);
+
+        PosessableController.InitializePosessables(game, levelData);
         PosessableController.InitializePlayer();
 
-        // Restore player position from the loaded save, if there was one.
-        if (data != null)
-        {
-            PosessableController.Player.Position = _data.PlayerPosition;
-        }
+        // Use save position if continuing, otherwise use level's spawn point.
+        PosessableController.Player.Position = data != null
+            ? _data.PlayerPosition
+            : levelData.PlayerSpawnPosition;
 
         Camera.LookAt(PosessableController.Player.Position);
         _hud = new HUD(game, PosessableController.Player);
@@ -65,6 +72,10 @@ public class GameScene : Scene
         centerOfScreen = new Vector2(Game.GraphicsDevice.Viewport.Width / 2f, Game.GraphicsDevice.Viewport.Height / 2f);
         PauseScreen.SaveAndExitBtnClicked += PauseMenu_SaveAndExitBtnClicked;
         PauseScreen.SaveBtnClicked += PauseMenu_SaveBtnClicked;
+#if DEBUG
+        _debugPixel = new Texture2D(game.GraphicsDevice, 1, 1);
+        _debugPixel.SetData(new[] { Color.White });
+#endif
     }
 
     public override void Update(GameTime gameTime)
@@ -90,7 +101,27 @@ public class GameScene : Scene
             _pauseScreen.InvertPaused();
             _pauseScreen.SetScreenPosition(Camera.Position);
         }
+
+#if DEBUG
+        if (_debugQuadTreeToggle.Pressed())
+        {
+            _debugDrawQuadTree = !_debugDrawQuadTree;
+        }
+#endif
     }
+
+#if DEBUG
+    public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+    {
+        base.Draw(gameTime, spriteBatch);
+        if (_debugDrawQuadTree)
+        {
+            spriteBatch.Begin(transformMatrix: Camera.GetViewMatrix());
+            GameWorldController.QuadTree.DebugDraw(spriteBatch, _debugPixel);
+            spriteBatch.End();
+        }
+    }
+#endif
 
     public void PauseMenu_SaveBtnClicked(MenuButton menuButton) => SaveCurrentGame();
 

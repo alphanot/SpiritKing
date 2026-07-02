@@ -5,6 +5,7 @@ using SpiritKing.Components.Interfaces;
 using SpiritKing.Components.Nodes;
 using SpiritKing.Components.Nodes.Collectables;
 using SpiritKing.Components.Posessables;
+using SpiritKing.Data;
 using System;
 using System.Collections.Generic;
 
@@ -17,29 +18,27 @@ public class GameWorldController : Components.Interfaces.IUpdateable, Components
     public PosessablesController PosessableHandler { get; }
     public QuadTree QuadTree { get; set; }
 
-    public GameWorldController(Game game)
+    public GameWorldController(Game game, LevelData levelData)
     {
+        QuadTree = new(new(0, 0, levelData.WorldWidth, levelData.WorldHeight), 5, 5);
 
-        QuadTree = new(new(0, 0, 50000, 50000), 5, 5);
+        Platforms = [];
+        foreach (var p in levelData.Platforms)
+        {
+            Platforms.Add(new Platform(game, 1, p.Position, p.Size));
+        }
 
-        Platforms =
-        [
-            new Platform(game, 1, new Vector2(350, 500), new Vector2(600, 50)),
-            new Platform(game, 1, new Vector2(250, 300), new Vector2(600, 50)),
-            new Platform(game, 1, new Vector2(50, 600), new Vector2(600, 50)),
-            new Platform(game, 1, new Vector2(200, 0), new Vector2(100, 100)),
-            new Platform(game, 1, new Vector2(0, 100), new Vector2(1000, 100)),
-            new Platform(game, 1, new Vector2(1000, 800), new Vector2(1000, 50)),
-            new Platform(game, 1, new Vector2(3050, 305), new Vector2(500, 50))
-        ];
-
-        Collectables =
-        [
-            new HealthItem(game, new Vector2(100, 0))
-        ];
+        Collectables = [];
+        foreach (var c in levelData.Collectibles)
+        {
+            Collectables.Add(c.Type switch
+            {
+                CollectibleType.HealthItem => new HealthItem(game, c.Position) { HealthValue = c.Value },
+                _ => throw new ArgumentException($"Unknown collectible type: {c.Type}")
+            });
+        }
 
         Platforms.ForEach(QuadTree.Insert);
-
         Collectables.ForEach(QuadTree.Insert);
         Posessable.GetCurrentCollisions += QuadTree.FindCollisions;
         Posessable.PickedUpCollectible += RemoveCollectibleFromWorld;

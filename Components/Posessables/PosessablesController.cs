@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SpiritKing.Controllers;
+using SpiritKing.Data;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -31,11 +32,19 @@ public class PosessablesController : Interfaces.IDrawable, Interfaces.IUpdateabl
         Posessables = new List<Posessable>();
     }
 
-    public void InitializePosessables(Game game)
+    public void InitializePosessables(Game game, LevelData levelData)
     {
-        Posessables.Add(new Goblin(game, new Vector2(0, 0)));
-        //Posessables.Add(new Gargoyle(game, new Vector2(1000, 0)));
-        Posessables.Add(new Hound(game, new Vector2(600, 0)));
+        foreach (var e in levelData.Enemies)
+        {
+            Posessable enemy = e.Type switch
+            {
+                EnemyType.Goblin => new Goblin(game, e.Position),
+                EnemyType.Gargoyle => new Gargoyle(game, e.Position),
+                EnemyType.Hound => new Hound(game, e.Position),
+                _ => throw new ArgumentException($"Unknown enemy type: {e.Type}")
+            };
+            Posessables.Add(enemy);
+        }
     }
 
     public Posessable InitializePlayer()
